@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+
+    <ImageView
+        style="@style/ClassResourceListItem"
+        android:id="@+id/class_resource_item_iv_preview"
+        android:background="@color/bg_gray"
+        android:scaleType="fitXY"
+        />
+
+    <TextView
+        style="@style/ClassResourceListItem"
+        android:id="@+id/class_resource_item_tv_name"
+        android:gravity="center"
+        android:textColor="@color/text_white"
+        android:textSize="14dp"
+        tools:text="白板001" />
+
+</RelativeLayout>

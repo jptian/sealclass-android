@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ListView
+        android:id="@+id/class_video_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:dividerHeight="@dimen/class_video_list_devider_height"
+        android:layout_marginTop="@dimen/class_video_list_margin"
+        android:layout_marginBottom="@dimen/class_video_list_margin"
+        android:divider="@android:color/transparent"
+        />
+</LinearLayout>

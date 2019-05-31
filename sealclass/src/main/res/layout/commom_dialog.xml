@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="@dimen/commom_dialog_width"
+    android:layout_height="wrap_content"
+    android:minHeight="@dimen/commom_dialog_min_height"
+    android:background="@drawable/common_dialog_bg"
+    >
+
+    <RelativeLayout
+        android:id="@+id/dialog_content_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/commom_dialog_common_min_height"
+        android:orientation="vertical"
+        android:gravity="center"
+        >
+        <TextView
+            android:id="@+id/dialog_tv_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/common_dialog_text_size"
+            android:textColor="@color/colorDialogText"
+            android:paddingLeft="@dimen/common_dialog_text_margin_left"
+            android:paddingRight="@dimen/common_dialog_text_margin_right"
+            android:paddingTop="@dimen/common_dialog_text_margin_top"
+            android:paddingBottom="@dimen/common_dialog_text_margin_bottom"
+            android:gravity="center"
+            />
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/line_width"
+        android:background="@color/colorDialogLine"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/common_dialog_button_height"
+        android:orientation="horizontal"
+        >
+
+        <Button
+            android:id="@+id/dialog_btn_negative"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/common_dialog_negative_seletor"
+            android:textSize="@dimen/common_dialog_text_size"
+            android:textColor="@color/colorDialogText"
+            android:text="@string/common_dialog_negative_text"
+            />
+        <View
+            android:layout_width="@dimen/line_width"
+            android:layout_height="match_parent"
+            android:background="@color/colorDialogLine"
+            />
+        <Button
+            android:id="@+id/dialog_btn_positive"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/common_dialog_positive_seletor"
+            android:textSize="@dimen/common_dialog_text_size"
+            android:textColor="@color/colorDialogPositive"
+            android:text="@string/common_dialog_posotive_text"
+
+            />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheckBox xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingLeft="@dimen/class_dialog_downgrade_item_margin_left"
+    android:textSize="@dimen/class_dialog_downgrade_item_text_size"
+    android:button="@drawable/dialog_item_check_downgrade_member_selector"
+    />

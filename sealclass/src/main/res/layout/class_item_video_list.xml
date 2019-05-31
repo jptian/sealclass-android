@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <LinearLayout
+        android:id="@+id/class_video_item_videoview_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:orientation="horizontal"
+        />
+
+
+    <TextView
+        android:id="@+id/class_tv_video_item_role"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/class_item_video_list_role_padding"
+        android:textSize="@dimen/class_item_video_list_role_text_size"
+        android:textColor="@color/white"
+        android:background="@drawable/class_member_list_role_assistant_bg"
+        android:layout_margin="@dimen/class_item_video_list_role_margin"
+        android:gravity="center"
+        android:visibility="gone"
+        android:layout_alignLeft="@id/class_video_item_videoview_container"
+        />
+
+
+    <TextView
+        android:id="@+id/class_tv_video_item_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/class_item_video_list_name_text_size"
+        android:textColor="@color/white"
+        android:layout_alignLeft="@id/class_video_item_videoview_container"
+        android:layout_alignBottom ="@id/class_video_item_videoview_container"
+        android:layout_margin="@dimen/class_item_video_list_name_margin"
+        android:lines="1"
+        android:singleLine="true"
+        />
+
+    <TextView
+        android:id="@+id/class_tv_video_item_content"
+        android:layout_width="@dimen/class_item_video_list_content_width"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:textSize="@dimen/class_item_video_list_content_text_size"
+        android:textColor="@color/white"
+        android:gravity="center"
+        android:layout_margin="@dimen/class_item_video_list_name_margin"
+        android:visibility="gone"
+        />
+</RelativeLayout>

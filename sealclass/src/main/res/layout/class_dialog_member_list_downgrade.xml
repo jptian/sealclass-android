@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/class_dialog_downgrade_height"
+    >
+    <GridView
+        android:id="@+id/class_gv_member_list"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/class_dialog_downgrade_height"
+        android:numColumns="2"
+        android:paddingTop="@dimen/class_dialog_downgrade_margin"
+        android:paddingLeft="@dimen/class_dialog_downgrade_margin"
+        android:paddingRight="@dimen/class_dialog_downgrade_margin"
+        android:verticalSpacing = "@dimen/class_dialog_downgrade_vertical_spacing"
+        ></GridView>
+
+</RelativeLayout>

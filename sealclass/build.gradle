@@ -1,0 +1,52 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "cn.rongcloud.sealclass"
+        minSdkVersion 19
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        ndk {
+            abiFilters "armeabi-v7a"
+        }
+        multiDexEnabled true
+    }
+
+    signingConfigs {
+        config {
+            storeFile file("rong.key")
+            storePassword "Amigo123"
+            keyAlias "RongCloud"
+            keyPassword "Amigo123"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.config
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.1.0-alpha04'
+    api 'com.squareup.retrofit2:retrofit:2.5.0'
+    api 'com.squareup.retrofit2:converter-gson:2.5.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.lifecycle:lifecycle-livedata:2.1.0-alpha04'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.1.0-alpha04'
+    implementation project(path: ':IMKit')
+    implementation project(path: ':IMLib')
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
+}

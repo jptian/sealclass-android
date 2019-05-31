@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="97dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/class_dialog_bg_create_whiteboard"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/class_dialog_tv_create_whiteboard"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="@string/class_dialog_create_whiteboard"
+        android:textColor="@color/text_white"
+        android:textSize="16dp" />
+</LinearLayout>

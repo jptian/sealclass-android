@@ -1,0 +1,113 @@
+<resources>
+    <string name="app_name">SealClass</string>
+    <string name="class_member_list_title_name">在线成员</string>
+    <string name="class_role_assistant">助教</string>
+    <string name="class_role_lecturer">讲师</string>
+    <string name="class_tv_member_apply_text">申请发言</string>
+    <string name="login_input_hint_class_id">输入课堂 ID</string>
+    <string name="login_input_hint_user_name">输入姓名</string>
+    <string name="login_error_tips_class_id">数字、字母，最多40个字符，区分大小写</string>
+    <string name="login_error_tips_user_name">汉字、字母或数字，最多 10 个字符</string>
+    <string name="login_option_listener">旁听</string>
+    <string name="login_option_enter_without_video">加入时关闭视频</string>
+    <string name="login_enter_class">加入课堂</string>
+    <string name="setting">设置</string>
+    <string name="login_setting_resolution_label">分辨率：</string>
+    <string name="common_dialog_negative_text">取消</string>
+    <string name="common_dialog_posotive_text">确定</string>
+    <string name="dialog_downgrade_positive_text">降级</string>
+    <string name="dialog_downgrade_negative_text">取消</string>
+    <string name="class_dialog_need_downgrade_positive">降级学员</string>
+    <string name="class_dialog_need_downgrade_negative">拒绝申请</string>
+    <string name="class_dialog_need_downgrade_content">%1$s申请发言，但学员人数已满， 请降级 1 名学员或拒绝发言申请</string>
+    <string name="class_dialog_leave_room_content">是否退出课堂？</string>
+    <string name="class_dialog_leave_room_positive_text">退出</string>
+    <string name="class_dialog_leave_room_negative_text">取消</string>
+    <string name="class_dialog_create_whiteboard">新建白板</string>
+    <string name="class_whitboard_default_name_format" formatted="true">白板 %d</string>
+    <string name="class_resource_lecturer_not_exist">暂时没有讲师</string>
+    <string name="class_resource_assistant_not_exist">暂时没有助教</string>
+
+    <string name="you">你</string>
+    <string name="mark_name_separate">、</string>
+
+    <string name="class_conversation_notify_member_join_format" formatted="true">%s 加入课堂</string>
+    <string name="class_conversation_notify_member_leave_format" formatted="true">%s 离开课堂</string>
+    <string name="class_conversation_notify_member_kick_format" formatted="true">%s 离开课堂</string>
+    <string name="class_conversation_notify_role_to_assistant" formatted="true">%s 成为助教</string>
+    <string name="class_conversation_notify_role_to_lecturer" formatted="true">%s 成为讲师</string>
+    <string name="class_conversation_notify_role_to_student" formatted="true">%s 成为学员</string>
+    <string name="class_conversation_notify_role_to_listener" formatted="true">%s 成为旁听者</string>
+    <string name="class_dialog_request_invite_camera_connect">助教请求打开您的摄像头</string>
+    <string name="class_dialog_request_invite_mic_connect">助教请求打开您的麦克风</string>
+    <string name="class_dialog_agree_positive">同意</string>
+    <string name="class_dialog_reject_negative">拒绝</string>
+    <string name="class_dialog_apply_speech_request_content">%1$s 申请发言</string>
+    <string name="class_dialog_upgrade_role_content">助教邀请您升级为学员</string>
+    <string name="login_dialog_not_listener_over_max">课堂非旁听者名额已满，是否以旁听者身份加入？</string>
+
+    <string name="error_api_common_error">请求服务器出错</string>
+    <string name="error_api_server_error">服务器出现错误</string>
+    <string name="error_api_invalid_auth">用户认证错误，请重新登录</string>
+    <string name="error_api_permission_denied">没有权限执行该项操作</string>
+    <string name="error_api_create_room_error">创建课堂失败</string>
+    <string name="error_api_join_room_error">加入课堂失败</string>
+    <string name="error_api_room_not_exist">课堂不存在</string>
+    <string name="error_api_user_not_in_room">用户不在课堂</string>
+    <string name="error_api_exit_room_error">退出房间失败</string>
+    <string name="error_api_lecturer_not_in_room">讲师不在课堂</string>
+    <string name="error_api_assistant_not_in_room">助教不在课堂</string>
+    <string name="error_api_create_white_board_error">创建白板失败</string>
+    <string name="error_api_white_board_not_exist">白板不存在</string>
+    <string name="error_api_delete_white_error">删除白板失败</string>
+    <string name="error_api_already_in_room">已加入课堂</string>
+    <string name="error_api_can_not_change_self_role">不能更改自己的身份</string>
+    <string name="error_api_ticket_invalid">操作已超时</string>
+    <string name="error_api_over_max_count">人数已超过上限</string>
+    <string name="error_api_lecturer_has_exist">讲师已存在</string>
+    <string name="error_api_downgrade_error">降级操作失败</string>
+    <string name="error_api_change_role_error">设置身份失败</string>
+    
+    <string name="toast_only_self_in_room">当前房间只有你一人，你可以等待或离开</string>
+    <string name="toast_tips_role_is_listener">你当前为旁听者，别人看/听不见你</string>
+    <string name="toast_other_side_accept_your_request">对方同意了你的请求</string>
+    <string name="toast_other_side_reject_your_request">对方拒绝了你的请求</string>
+    <string name="toast_other_side_not_respond">对方未响应，请稍后再试</string>
+    <string name="toast_assistant_close_your_camera">助教已关闭你的摄像头</string>
+    <string name="toast_assistant_close_your_mic">助教已关闭你的麦克风</string>
+    <string name="toast_assistant_accept_your_speech">助教通过了你的发言请求</string>
+    <string name="toast_assistant_reject_your_speech">助教拒绝了你的发言请求</string>
+    <string name="toast_assistant_not_respond">助教无响应，请稍后再试</string>
+    <string name="toast_error_need_app_permission">加入课堂需要开启音视频相关权限</string>
+    <string name="toast_your_role_is_to_student">你已成为学员</string>
+    <string name="toast_your_role_is_to_lecturer">你已成为讲师</string>
+    <string name="toast_your_role_is_to_assistant">你已成为助教</string>
+    <string name="toast_you_kick_off_one_from_class_format">你已将 %s 移除了课堂</string>
+
+    <string name="error_network_error">网络出错</string>
+    <string name="error_unkown_error">未知错误</string>
+    <string name="error_im_common_error">即时通信出现错误</string>
+    <string name="error_rtc_common_error">音视频出现错误</string>
+    <string name="class_share_screen_null_text">当前无共享内容，您可以新建共享内容</string>
+    <string name="class_share_screen_null_text_other">当前无共享内容，请耐心等待</string>
+    <string name="class_resource_list_title_name">资源库</string>
+
+    <string name="class_white_board_select_upload_file">请选择上传的文件</string>
+    <string name="class_item_member_applying">申请中...</string>
+    <string name="toast_assistant_respond_apply_speech_request_timeout">响应申请发言请求超时</string>
+    <string name="class_video_list_lecturer_content">讲师正在授课</string>
+    <string name="class_video_list_Assistant_content">助教正在备课</string>
+    <string name="class_video_list_lecturer_comming">讲师正在赶来的路上，请耐心等待</string>
+
+    <string-array name="class_member_list_operate_dialog_content">
+        <item>确定把助教身份转给成员吗？</item>
+        <item>确定设置成员为讲师吗？</item>
+        <item>确定打开成员麦克风吗？</item>
+        <item>确定关闭成员麦克风吗？</item>
+        <item>确定打开成员摄像头吗？</item>
+        <item>确定关闭成员摄像头吗？</item>
+        <item>确定将成员升级为学员吗？</item>
+        <item>确定将成员降级为旁听者吗？</item>
+        <item>确定将成员踢出课堂吗？</item>
+    </string-array>
+</resources>

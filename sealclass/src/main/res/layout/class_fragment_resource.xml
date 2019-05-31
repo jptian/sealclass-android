@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_class_resource_list"
+    android:gravity="center"
+    >
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/class_resource_list_title_name"
+        android:textSize="@dimen/class_member_list_title_name_text_size"
+        android:textColor="@color/white"
+        android:layout_gravity="left"
+        android:layout_marginTop="@dimen/class_member_list_title_name_margin_top"
+        android:layout_marginLeft="@dimen/class_member_list_title_name_margin_left"
+        android:layout_marginBottom="@dimen/class_member_list_title_name_margin_bottom"
+        />
+
+    <ListView
+        android:id="@+id/class_lv_resource_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/class_lv_resource_margin"
+        android:layout_marginRight="@dimen/class_lv_resource_margin"
+        android:listSelector="@android:color/transparent"
+        android:divider="@null"
+        tools:listitem="@layout/class_item_resource_list"
+        />
+</LinearLayout>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorMemberListBg"
+    >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/class_member_list_title_name"
+        android:textSize="@dimen/class_member_list_title_name_text_size"
+        android:textColor="@color/white"
+        android:layout_marginTop="@dimen/class_member_list_title_name_margin_top"
+        android:layout_marginLeft="@dimen/class_member_list_title_name_margin_left"
+        android:layout_marginBottom="@dimen/class_member_list_title_name_margin_bottom"
+        />
+
+    <ListView
+        android:id="@+id/class_lv_member_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </ListView>
+
+
+</LinearLayout>

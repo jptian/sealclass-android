@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/class_ll_menber_item"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/class_item_menber_list_height"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        >
+
+        <TextView
+            android:id="@+id/class_tv_member_portrait"
+            android:layout_width="@dimen/class_tv_member_portrait_width"
+            android:layout_height="@dimen/class_container_member_height"
+            android:layout_marginLeft="@dimen/class_container_member_margin_left"
+            android:gravity="center"
+            android:textSize="@dimen/class_tv_member_portrait_text_size"
+            android:textColor="@color/white"
+            />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal" >
+            <TextView
+                android:id="@+id/class_tv_member_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="@dimen/class_tv_member_name_max_width"
+                android:textSize="@dimen/class_tv_member_name_text_size"
+                android:textColor="@color/white"
+                android:singleLine="true"
+                android:lines="1"
+                android:layout_toLeftOf="@id/class_tv_member_role"
+                android:layout_marginLeft="@dimen/class_tv_member_name_margin_left"
+                />
+
+            <TextView
+                android:id="@+id/class_tv_member_role"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:padding="@dimen/class_tv_member_role_padding"
+                android:textSize="@dimen/class_tv_member_role_text_size"
+                android:layout_marginLeft="@dimen/class_tv_member_role_margin_left"
+                />
+        </LinearLayout>
+
+
+        <TextView
+            android:id="@+id/class_tv_member_apply"
+            android:layout_width="@dimen/class_tv_member_apply_width"
+            android:layout_height="@dimen/class_tv_member_apply_height"
+            android:layout_marginLeft="@dimen/class_tv_member_apply_margin_left"
+            android:layout_marginRight="@dimen/class_tv_member_apply_margin_right"
+            android:textColor="@color/colorMemberApply"
+            android:background="@drawable/class_member_list_apply_bg"
+            android:textSize="@dimen/class_tv_member_apply_text_size"
+            android:gravity="center"
+            android:text="@string/class_tv_member_apply_text"
+            />
+
+    </LinearLayout>
+
+    <cn.rongcloud.sealclass.ui.widget.ButtonOperateView
+        android:id="@+id/class_item_member_operation"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/class_item_menber_list_operate_height"
+        android:orientation="horizontal"
+        android:background="@color/colorMemberOperationBg"
+        >
+
+    </cn.rongcloud.sealclass.ui.widget.ButtonOperateView>
+
+
+</LinearLayout>

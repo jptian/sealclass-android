@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/class_screen_control_res_library_disabled" android:state_enabled="false" />
+    <item android:drawable="@drawable/class_screen_control_res_library_checked" android:state_checked="true"/>
+    <item android:drawable="@drawable/class_screen_control_res_library" android:state_checked="false"/>
+    <item android:drawable="@drawable/class_screen_control_res_library"/>
+</selector>

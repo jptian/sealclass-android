@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">   
+    
+    <cn.rongcloud.sealclass.ui.widget.OperateButtonGroupView
+        android:id="@+id/class_top_operate_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginRight="@dimen/class_top_operate_view_margin_right"
+        >
+
+    </cn.rongcloud.sealclass.ui.widget.OperateButtonGroupView>
+
+</LinearLayout>

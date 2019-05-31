@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#21C194</color>
+    <color name="colorScreenControlBg">#FF293A3D</color>
+    <color name="colorClassTitleBg">#262F38</color>
+    <color name="white">#FFFFFF</color>
+    <color name="colorMemberListBg">#f0132023</color>
+    <color name="colorMemberOperationBg">#090C0F</color>
+    <color name="colorRoleAssistant">#F5A623</color>
+    <color name="colorRoleLecturer">#FF5500</color>
+    <color name="colorMemberApply">#21C194</color>
+    <color name="text_black">#383838</color>
+    <color name="text_red">#F44436</color>
+    <color name="text_white">#FFFFFF</color>
+    <color name="text_gray">#9B9B9B</color>
+    <color name="text_green">#21C194</color>
+    <color name="separate_line">#BCBCBC</color>
+    <color name="colorDialogLine">#E5E5E5</color>
+    <color name="colorDialogText">#262626</color>
+    <color name="colorDialogPositive">#21C194</color>
+    <color name="bg_gray">#3D4041</color>
+    <color name="bg_class_resource_list">#f0132023</color>
+    <color name="class_bg_toast">#070809</color>
+
+    <color name="class_conversation_bg_notification_message">#80666666</color>
+
+    <!-- 覆盖并自定义 IMKit 消息通知背景颜色 -->
+    <color name="rc_notification_bg">@color/class_conversation_bg_notification_message</color>
+    <color name="colorClassMainBg">#28313A</color>
+    <color name="classDialogApplySpeechRequestText">#303030</color>
+    <color name="colorVideoViewBg">#3D4041</color>
+    <color name="colorShareScreenText">#B2B2B2</color>
+    <color name="black">#000000</color>
+
+</resources>

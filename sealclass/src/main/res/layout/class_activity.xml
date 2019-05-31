@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/class_parent_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorClassMainBg"
+    tools:context=".ui.ClassActivity">
+    <RelativeLayout
+        android:id="@+id/class_root_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <RelativeLayout
+            android:id="@+id/class_fl_title"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/class_title_height"
+            android:background="@color/colorClassTitleBg">
+
+            <TextView
+                android:id="@+id/class_tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="Class ID"
+                android:textColor="@color/white"
+                android:textSize="@dimen/class_tv_title_text_size" />
+
+            <!-- RTC control -->
+            <FrameLayout
+                android:id="@+id/class_container_rtc_control"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true" />
+
+            <TextView
+                android:id="@+id/class_tv_time"
+                android:layout_width="@dimen/class_tv_time_width"
+                android:layout_height="@dimen/class_tv_time_height"
+                android:layout_marginLeft="72dp"
+                android:layout_marginTop="24dp"
+                android:textColor="@color/text_white"
+                android:textSize="10dp"
+                tools:text="00:00:00" />
+
+        </RelativeLayout>
+
+        <!-- screen control -->
+        <FrameLayout
+            android:id="@+id/class_container_screen_control"
+            android:layout_width="@dimen/class_container_screen_control_width"
+            android:layout_height="match_parent" />
+
+
+        <FrameLayout
+            android:id="@+id/class_fl_main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/class_fl_title"
+            android:layout_toRightOf="@id/class_container_screen_control">
+
+            <LinearLayout
+                android:id="@+id/class_main"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:orientation="horizontal"
+                >
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    >
+                    <FrameLayout
+                        android:id="@+id/class_container_share_screen"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        />
+                    <FrameLayout
+                        android:id="@+id/class_container_video_big_window"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:visibility="gone"
+                        />
+                </RelativeLayout>
+
+                <FrameLayout
+                    android:id="@+id/class_container_video_list"
+                    android:layout_width="@dimen/class_container_video_list_width"
+                    android:layout_height="match_parent"
+                    />
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/class_container_im"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true" />
+
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/class_container_menber_list"
+            android:layout_width="@dimen/class_container_member_width"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true" />
+        <FrameLayout
+            android:id="@+id/class_container_resource_library"
+            android:layout_width="@dimen/class_container_resource_library_width"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true" />
+
+        <FrameLayout
+            android:id="@+id/class_container_full_screen"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/class_tv_toast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="75dp"
+            android:background="@drawable/class_bg_toast"
+            android:paddingLeft="12dp"
+            android:paddingTop="7dp"
+            android:paddingRight="12dp"
+            android:paddingBottom="7dp"
+            android:textColor="@color/text_white"
+            android:textSize="12dp"
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:text="当前学员人数已满，请先降级一名学员后再继续操作" />
+
+    </RelativeLayout>
+</FrameLayout>

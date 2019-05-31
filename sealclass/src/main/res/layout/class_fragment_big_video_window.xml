@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/class_big_window_root"
+    android:layout_marginTop="@dimen/class_big_view_window_margin_top"
+    android:layout_marginLeft="@dimen/class_big_view_window_margin_left"
+    android:layout_marginRight="@dimen/class_big_view_window_margin_right"
+    android:layout_marginBottom="@dimen/class_big_view_window_margin_bottom"
+    >
+
+    <RelativeLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/class_big_view_window_show_margin"
+        android:background="@drawable/class_video_big_window_bg"
+        >
+        <cn.rongcloud.sealclass.ui.view.ClassVideoListItem
+            android:id="@+id/class_video_view_item"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:layout_margin="@dimen/class_video_big_window_margin"
+            android:visibility="visible"
+            >
+
+        </cn.rongcloud.sealclass.ui.view.ClassVideoListItem>
+
+        <ImageButton
+            android:id="@+id/class_btn_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/class_video_big_window_btn_close"
+            />
+    </RelativeLayout>
+</RelativeLayout>
