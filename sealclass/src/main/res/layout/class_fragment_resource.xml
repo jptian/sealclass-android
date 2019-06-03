@@ -7,17 +7,24 @@
     android:background="@color/bg_class_resource_list"
     android:gravity="center"
     >
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/class_resource_list_title_name"
-        android:textSize="@dimen/class_member_list_title_name_text_size"
-        android:textColor="@color/white"
-        android:layout_gravity="left"
         android:layout_marginTop="@dimen/class_member_list_title_name_margin_top"
         android:layout_marginLeft="@dimen/class_member_list_title_name_margin_left"
         android:layout_marginBottom="@dimen/class_member_list_title_name_margin_bottom"
-        />
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/class_resource_list_title_name"
+            android:textSize="@dimen/class_member_list_title_name_text_size"
+            android:textColor="@color/white"
+            android:layout_gravity="left"
+
+            />
+    </LinearLayout>
+
 
     <ListView
         android:id="@+id/class_lv_resource_list"

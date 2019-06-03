@@ -6,7 +6,7 @@
     <string name="class_tv_member_apply_text">申请发言</string>
     <string name="login_input_hint_class_id">输入课堂 ID</string>
     <string name="login_input_hint_user_name">输入姓名</string>
-    <string name="login_error_tips_class_id">数字、字母，最多40个字符，区分大小写</string>
+    <string name="login_error_tips_class_id">字母或数字，最多 40 个字符</string>
     <string name="login_error_tips_user_name">汉字、字母或数字，最多 10 个字符</string>
     <string name="login_option_listener">旁听</string>
     <string name="login_option_enter_without_video">加入时关闭视频</string>
