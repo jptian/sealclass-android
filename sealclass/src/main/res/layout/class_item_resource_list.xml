@@ -10,7 +10,7 @@
         style="@style/ClassResourceListItem"
         android:id="@+id/class_resource_item_iv_preview"
         android:background="@color/bg_gray"
-        android:scaleType="fitXY"
+        android:scaleType="centerCrop"
         />
 
     <TextView

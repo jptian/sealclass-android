@@ -46,12 +46,6 @@ public class CommonDialog extends DialogFragment {
         Window window = getDialog().getWindow();
         //背景色
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        View decorView = getDialog().getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                | View.SYSTEM_UI_FLAG_FULLSCREEN;
-        decorView.setSystemUiVisibility(uiOptions);
     }
 
     @Nullable

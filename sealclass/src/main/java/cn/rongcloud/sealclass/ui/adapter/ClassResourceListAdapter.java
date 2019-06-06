@@ -82,7 +82,7 @@ public class ClassResourceListAdapter extends BaseAdapter {
             if (screenShotBitmap != null && !screenShotBitmap.isRecycled()) {
                 viewHolder.resourceNameTv.setVisibility(View.GONE);
                 viewHolder.resourcePreviewIv.setImageBitmap(userDisplayResource.getScreenShotBitmap());
-                viewHolder.resourcePreviewIv.setScaleType(ImageView.ScaleType.FIT_XY);
+                viewHolder.resourcePreviewIv.setScaleType(ImageView.ScaleType.CENTER_CROP);
             } else {
                 viewHolder.resourceNameTv.setVisibility(View.VISIBLE);
                 String name = userDisplayResource.getClassMember().getUserName();

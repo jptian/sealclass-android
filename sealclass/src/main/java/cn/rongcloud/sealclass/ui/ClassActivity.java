@@ -88,7 +88,6 @@ public class ClassActivity extends ExtendBaseActivity implements ToastBySelfComp
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        hideNavigationBar();
         Intent intent = getIntent();
 
         if (intent == null) {
@@ -457,8 +456,10 @@ public class ClassActivity extends ExtendBaseActivity implements ToastBySelfComp
 
                 if (isToFullScreen) {
                     fragmentTransaction.add(R.id.class_container_full_screen, shareScreenFragment);
+                    hideNavigationBar(true);
                 } else {
                     fragmentTransaction.add(R.id.class_container_share_screen, shareScreenFragment);
+                    hideNavigationBar(false);
                 }
                 fragmentTransaction.commitAllowingStateLoss();
             }
@@ -865,7 +866,6 @@ public class ClassActivity extends ExtendBaseActivity implements ToastBySelfComp
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-        hideNavigationBar();
     }
 
     @Override
@@ -906,7 +906,6 @@ public class ClassActivity extends ExtendBaseActivity implements ToastBySelfComp
 //            }
 //        }
 
-        hideNavigationBar();
     }
 }
 

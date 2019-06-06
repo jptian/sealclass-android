@@ -68,7 +68,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        hideNavigationBar();
         setContentView(R.layout.login_activity_main);
         enableKeyboardStateListener(true);
 
@@ -381,7 +380,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
     @Override
     public void onKeyboardStateChanged(boolean isShown, int height) {
-        hideNavigationBar();
         if(!isShown){
             classIdEt.clearFocus();
             userNameEt.clearFocus();
@@ -437,7 +435,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
 
-        hideNavigationBar();
     }
 
     @Override

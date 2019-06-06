@@ -117,7 +117,7 @@ public class ClassResourceFragment extends BaseFragment {
             }
         });
 
-        // 目前由于 RTC 提供一帧方法不稳定， 所以注释掉
+//        // 目前由于 RTC 提供一帧方法不稳定， 所以注释掉
 //        classViewModel.getFisrtFrameDraw().observe(this, new Observer<FirstFrameUserInfo>() {
 //            @Override
 //            public void onChanged(FirstFrameUserInfo firstFrameUserInfo) {

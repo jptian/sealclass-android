@@ -16,7 +16,6 @@ public class SplashActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.splash_activity);
-        hideNavigationBar();
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override

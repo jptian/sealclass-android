@@ -93,11 +93,14 @@ public class BaseActivity extends AppCompatActivity{
     /**
      * 隐藏导航键
      */
-    public void hideNavigationBar(){
+    public void hideNavigationBar(boolean hide){
         View decorView = getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
+        if(hide){
+            uiOptions= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        }
         decorView.setSystemUiVisibility(uiOptions);
     }
 
