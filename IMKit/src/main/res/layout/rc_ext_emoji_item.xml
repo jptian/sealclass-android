@@ -8,8 +8,8 @@
 
     <ImageView
         android:id="@+id/rc_ext_emoji_item"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
         android:layout_gravity="center"
         android:scaleType="center"/>
 </FrameLayout>
