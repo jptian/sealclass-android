@@ -68,7 +68,7 @@ public class IMManager {
          * 初始化 SDK，在整个应用程序全局，只需要调用一次。建议在 Application 继承类中调用。
          */
         // 可在初始 SDK 时直接带入融云 IM 申请的APP KEY
-        RongIM.init(context, "uwd1c0sxuqp91", false);
+        RongIM.init(context, 这里请替换为您的融云 AppKey, false);
 
         // 注册自定义消息
         RongIM.registerMessageType(ApplyForSpeechMessage.class);

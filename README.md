@@ -11,6 +11,26 @@ SealClass，是以音视频为基础，满足参与者在线教学、互动需�
 
 SealClass 为一款在线课堂软件. 页面主要分为登录页面和主界面.
 
+## 运行 SealClass-Android
+1.  替换 SealClassUrls.java 中的 DOMAIN 常量值为您所部署的 SealClass 服务地址。  
+```
+public class SealClassUrls {
+    public static final String DOMAIN = 这里请替换为您所部署的 SealMic Server 地址;
+```
+2. 替换 IMManager.java 中，init 方法中调用融云初始化的代码 RongIM.init 替换为您所申请的融云 AppKey。  
+```
+public static void init(Context context) {
+        final IMManager imManager = getInstance();
+        /*
+         * 初始化 SDK，在整个应用程序全局，只需要调用一次。建议在 Application 继承类中调用。
+         */
+        // 可在初始 SDK 时直接带入融云 IM 申请的APP KEY
+        RongIM.init(context, 这里请替换为您的融云 AppKey, false);
+```
+备注：  
+SealClass Server 源码可以参考 [这里](https://github.com/rongcloud/sealclass-server)
+
+
 ### 登录界面
 
 ![](./images/sealclass-login.png)

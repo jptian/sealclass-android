@@ -1,7 +1,7 @@
 package cn.rongcloud.sealclass.api;
 
 public class SealClassUrls {
-    public static final String DOMAIN = "https://api-sealclass.rongcloud.cn/api/v1/";
+    public static final String DOMAIN = 这里请替换为您所部署的 SealMic Server 地址;
 
     public static final String LOGIN = "room/join";
 
