@@ -139,9 +139,9 @@ public class ClassActivity extends ExtendBaseActivity implements ToastBySelfComp
             @Override
             public void onChanged(String classId) {
 
-                classId = classId.length() > 10 ? classId.substring(0, 10) + "..." : classId;
+                String titleClassId = classId.length() > 10 ? classId.substring(0, 10) + "..." : classId;
                 // 设置标题
-                classIdTv.setText(classId);
+                classIdTv.setText(titleClassId);
 
                 /*
                  * 以下会在 Android Studio 报出 fragment 类不匹配错误，因为目前 IMKit 没有使用 Android X
