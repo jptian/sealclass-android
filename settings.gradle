@@ -1,1 +1,1 @@
-include ':sealclass', ':IMLib', ':IMKit'
+include ':sealclass'

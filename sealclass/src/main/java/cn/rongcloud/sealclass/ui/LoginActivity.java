@@ -40,7 +40,8 @@ import cn.rongcloud.sealclass.utils.TextMatchUtils;
 import cn.rongcloud.sealclass.utils.ToastUtils;
 import cn.rongcloud.sealclass.viewmodel.LoginViewModel;
 
-import static cn.rongcloud.rtc.core.voiceengine.BuildInfo.MANDATORY_PERMISSIONS;
+import static cn.rongcloud.rtc.utils.BuildInfo.MANDATORY_PERMISSIONS;
+
 
 /**
  * 登录界面

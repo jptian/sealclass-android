@@ -252,7 +252,7 @@ public class RtcManager {
 
         if (receiveVoiceSteamList.size() > 0) {
             if (mute) {
-                getRTCRoom().unSubscribeAVStream(receiveVoiceSteamList, new RongRTCResultUICallBack() {
+                getRTCRoom().unsubscribeAVStream(receiveVoiceSteamList, new RongRTCResultUICallBack() {
                     @Override
                     public void onUiSuccess() {
                         if (callback != null) {
@@ -637,7 +637,7 @@ public class RtcManager {
         }
 
         @Override
-        public void onRemoteUserUnPublishResource(RongRTCRemoteUser rongRTCRemoteUser, List<RongRTCAVInputStream> list) {
+        public void onRemoteUserUnpublishResource(RongRTCRemoteUser rongRTCRemoteUser, List<RongRTCAVInputStream> list) {
             SLog.d(SLog.TAG_RTC, "Remote user unpublish resource，user=" + rongRTCRemoteUser.getUserId() + "," + rtcCallback);
             if (rtcCallback != null) {
                 rtcCallback.onRemoteUserUnPublishResource(rongRTCRemoteUser.getUserId(), list);
@@ -693,7 +693,9 @@ public class RtcManager {
     };
 
     public void setVideoResolution(VideoResolution resolution) {
-        RongRTCConfig config = new RongRTCConfig.Builder().videoProfile(resolution.getProfile()).build();
+        RongRTCConfig config = new RongRTCConfig.Builder().videoProfile(resolution.getProfile())
+                .enableTinyStream(false)
+                .build();
         RongRTCCapture.getInstance().setRTCConfig(config);
     }
 
