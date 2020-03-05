@@ -22,12 +22,15 @@ import cn.rongcloud.sealclass.model.UserInfo;
 import cn.rongcloud.sealclass.permission.ClassPermission;
 import cn.rongcloud.sealclass.ui.VideoViewManager;
 import cn.rongcloud.sealclass.ui.dialog.CommonDialog;
+import cn.rongcloud.sealclass.ui.dialog.LoadingDialog;
 import cn.rongcloud.sealclass.ui.widget.OnOperateItemListener;
 import cn.rongcloud.sealclass.ui.widget.OperateButtonGroupView;
 import cn.rongcloud.sealclass.ui.widget.OperateItem;
 import cn.rongcloud.sealclass.utils.DisplayUtils;
+import cn.rongcloud.sealclass.utils.ToastUtils;
 import cn.rongcloud.sealclass.viewmodel.ClassViewModel;
 import cn.rongcloud.sealclass.model.RequestState;
+import io.rong.imlib.RongIMClient;
 
 /**
  * 顶部控制按钮布局。
@@ -135,7 +138,7 @@ public class ClassTopOperateControlFragment extends BaseFragment {
                         classViewModel.switchCamera();
                         break;
                     case HANGUP:
-                        showExitDialog();
+                        showExitDialog(getString(R.string.class_dialog_leave_room_content),0);
                         break;
                     default:
                         break;
@@ -210,8 +213,17 @@ public class ClassTopOperateControlFragment extends BaseFragment {
             public void onChanged(ClassMember member) {
                 UserInfo userInfoValue = classViewModel.getUserInfo().getValue();
                 if (userInfoValue.getUserId().equals(member.getUserId())) {
-                    leaveRoom(getRoomId());
+                    leaveRoom(getRoomId(),member.getSchoolId(),false);
                 }
+            }
+        });
+
+        //房间被销毁
+        classViewModel.getRoomDestroy().observe(this, new Observer<ClassMember>() {
+            @Override
+            public void onChanged(ClassMember member) {
+                ToastUtils.showToast("本次课程已结束!");
+                leaveRoom(getRoomId(), member.getSchoolId(),true);
             }
         });
 
@@ -239,6 +251,22 @@ public class ClassTopOperateControlFragment extends BaseFragment {
             }
         });
 
+        classViewModel.setConnectionStatusListener(new RongIMClient.ConnectionStatusListener() {
+            @Override
+            public void onChanged(ConnectionStatus connectionStatus) {
+                // 仅处理移动端互踢，web和移动端由NewDeviceMessage处理
+                if (connectionStatus == ConnectionStatus.KICKED_OFFLINE_BY_OTHER_CLIENT) {
+                    showExitDialog(getString(R.string.kicked_offline_by_other_client),1);
+                }
+            }
+        });
+
+        classViewModel.getNewDeviceMessage().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                showExitDialog(getString(R.string.kicked_offline_by_other_client), 1);
+            }
+        });
     }
 
     // 设置控制按钮的状态
@@ -286,31 +314,52 @@ public class ClassTopOperateControlFragment extends BaseFragment {
         return roomId;
     }
 
-    // 退出课堂dialog
-    private void showExitDialog() {
+    /**
+     * 退出课堂dialog
+     * @param ContentMessage
+     * @param exitType 退出类型：0：hangup , 1:kicked offline
+     */
+    private void showExitDialog(String ContentMessage, final int exitType) {
         CommonDialog.Builder builder = new CommonDialog.Builder();
-        builder.setContentMessage(getString(R.string.class_dialog_leave_room_content));
-        builder.setButtonText(R.string.class_dialog_leave_room_positive_text, R.string.class_dialog_leave_room_negative_text);
+        builder.setContentMessage(ContentMessage);
+        int negativeText = R.string.class_dialog_leave_room_negative_text;
+        if (exitType == 1) {
+            negativeText = R.string.common_dialog_posotive_text;
+        }
+        builder.setButtonText(R.string.class_dialog_leave_room_positive_text, negativeText);
         builder.setDialogButtonClickListener(new CommonDialog.OnDialogButtonClickListener() {
             @Override
             public void onPositiveClick(View v, Bundle bundle) {
-                leaveRoom(getRoomId());
+                leaveRoom(getRoomId(),userInfoValue.getSchoolId(),true);
             }
 
             @Override
             public void onNegativeClick(View v, Bundle bundle) {
-
+                if (exitType == 1) {
+                    leaveRoom(getRoomId(),userInfoValue.getSchoolId(),true);
+                }
             }
         });
         CommonDialog dialog = builder.build();
         dialog.show(getFragmentManager(), "leave_dialog");
     }
 
-    // 离开房间操作
-    private void leaveRoom(final String roomId) {
+    private LoadingDialog loadingDialog_leave;
+    /**
+     * 离开房间操作
+     * @param roomId
+     * @param schoolId
+     * @param showDialog 是否需要显示loding
+     */
+    private void leaveRoom(final String roomId, String schoolId, final boolean showDialog) {
         VideoViewManager.getInstance().clear();
+
+        if (showDialog) {
+            loadingDialog_leave = new LoadingDialog();
+            loadingDialog_leave.show(this.getFragmentManager(), "正在退出房间");
+        }
         if (classViewModel != null) {
-            classViewModel.leaveRoom(roomId).observe(this, new ShowToastObserver(getActivity()) {
+            classViewModel.leaveRoom(roomId, schoolId).observe(this, new ShowToastObserver(getActivity()) {
                 @Override
                 public void onChanged(RequestState requestState) {
                     super.onChanged(requestState);
@@ -319,7 +368,12 @@ public class ClassTopOperateControlFragment extends BaseFragment {
                         classViewModel.quitRtcRoom(roomId).observe(ClassTopOperateControlFragment.this, new Observer<RequestState>() {
                             @Override
                             public void onChanged(RequestState requestState) {
-                                getActivity().finish();
+                                if (requestState != RequestState.loading()) {
+                                    if (showDialog && loadingDialog_leave != null) {
+                                        loadingDialog_leave.dismiss();
+                                    }
+                                    getActivity().finish();
+                                }
                             }
                         });
                     }
@@ -343,4 +397,11 @@ public class ClassTopOperateControlFragment extends BaseFragment {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (null != classViewModel) {
+            classViewModel.setConnectionStatusListener(null);
+        }
+    }
 }

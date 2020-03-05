@@ -13,6 +13,7 @@ import cn.rongcloud.sealclass.R;
 import cn.rongcloud.sealclass.model.ClassMember;
 import cn.rongcloud.sealclass.ui.view.ClassVideoListItem;
 import cn.rongcloud.sealclass.utils.DisplayUtils;
+import cn.rongcloud.sealclass.utils.Utils;
 import cn.rongcloud.sealclass.utils.log.SLog;
 
 /**
@@ -23,6 +24,12 @@ public class ClassVideoListAdapter extends BaseAdapter {
     private List<ClassMember> menberList;
     private OnUserUpdateListener listener;
     private List<String> updateUserIds = Collections.synchronizedList(new ArrayList<String>());
+    int width, height;
+
+    public ClassVideoListAdapter() {
+        width = DisplayUtils.dip2px(Utils.getContext(), Math.round(84 * 1.333));
+        height = DisplayUtils.dip2px(Utils.getContext(), 84);
+    }
 
     @Override
     public int getCount() {
@@ -45,8 +52,6 @@ public class ClassVideoListAdapter extends BaseAdapter {
         if (convertView == null) {
             ClassVideoListItem item = new ClassVideoListItem(parent.getContext());
             item.setBackgroundResource(R.color.colorVideoViewBg);
-            int width = DisplayUtils.dip2px(parent.getContext(), Math.round(84 * 1.333));
-            int height = DisplayUtils.dip2px(parent.getContext(), 84);
             AbsListView.LayoutParams layoutParams = (AbsListView.LayoutParams) item.getLayoutParams();
             if (layoutParams == null) {
                 layoutParams = new AbsListView.LayoutParams(width, height);
@@ -61,22 +66,17 @@ public class ClassVideoListAdapter extends BaseAdapter {
         ClassMember classMember = menberList.get(position);
         ClassMember oldData = ((ClassVideoListItem) convertView).getData();
         ClassVideoListItem item = ((ClassVideoListItem) convertView);
-//        SLog.d("ss_video_adapter", "ClassVideoListItem , position = " + position + ", count = " + item.getVideoViewCount());
         item.setData(classMember);
         if (oldData != null) {
             //如果不为空，则判读是当前的人是否还是同一个人， 如果不是， 则通知刷新
             boolean update = isUpdate(classMember.getUserId());
-//            SLog.d("ss_video_adapter", "ClassVideoListItem , position = " + position + ", update = " + update + ", equal = " + (!oldData.getUserId().equals(classMember.getUserId())));
-
             if (classMember == null || update || !oldData.getUserId().equals(classMember.getUserId())) {
-//                SLog.d("ss_video_adapter", "ClassVideoListItem , position = " + position + ", 1");
                 // 通知解绑和绑定
                 if (listener != null) {
                     listener.onUpdate(item, position, oldData, classMember);
                 }
             }
         } else {
-//            SLog.d("ss_video_adapter", "ClassVideoListItem , position = " + position + ", 2");
             // 通知订阅
             if (listener != null) {
                 listener.onUpdate(item, position, oldData, classMember);

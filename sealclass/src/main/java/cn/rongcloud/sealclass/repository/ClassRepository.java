@@ -1,6 +1,7 @@
 package cn.rongcloud.sealclass.repository;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import cn.rongcloud.sealclass.im.message.ControlDeviceNotifyMessage;
 import cn.rongcloud.sealclass.im.message.DeviceStateChangedMessage;
 import cn.rongcloud.sealclass.im.message.DisplayMessage;
 import cn.rongcloud.sealclass.im.message.MemberChangedMessage;
+import cn.rongcloud.sealclass.im.message.NewDeviceMessage;
 import cn.rongcloud.sealclass.im.message.RoleChangedMessage;
 import cn.rongcloud.sealclass.im.message.SpeechResultMessage;
 import cn.rongcloud.sealclass.im.message.TicketExpiredMessage;
@@ -52,6 +54,7 @@ import io.rong.imlib.model.MessageContent;
  */
 public class ClassRepository extends BaseRepository {
     private static final String PARAM_ROOM_ID = "roomId";
+    private static final String PARAM_SCHOOL_ID = "schoolId";
     private static final String PARAM_USER_ID = "userId";
     private static final String PARAM_CAMERA_ON = "cameraOn";
     private static final String PARAM_MIC_ON = "microphoneOn";
@@ -72,9 +75,10 @@ public class ClassRepository extends BaseRepository {
         imManager = IMManager.getInstance();
     }
 
-    public void leave(String roomId, ResultCallback<Boolean> callBack) {
+    public void leave(String roomId, String schoolId,ResultCallback<Boolean> callBack) {
         HashMap<String, Object> bodyMap = new HashMap<>();
         bodyMap.put(PARAM_ROOM_ID, roomId);
+        bodyMap.put(PARAM_SCHOOL_ID, schoolId);
         sealClassService.leave(RetrofitUtil.createJsonRequest(bodyMap)).enqueue(new CallBackWrapper<Boolean>(callBack));
     }
 
@@ -400,6 +404,34 @@ public class ClassRepository extends BaseRepository {
                 eventListener.onInviteUpgradeRole(upgradeRoleInvite);
 
                 return true;
+            } else if(content instanceof NewDeviceMessage) {
+                NewDeviceMessage newDeviceMessage = (NewDeviceMessage) content;
+                String deviceId = "-1";
+                if (newDeviceMessage != null) {
+                    StringBuffer stringBuffer = new StringBuffer();
+                    if (!TextUtils.isEmpty(newDeviceMessage.getDeviceId())) {
+                        stringBuffer.append("DeviceId:");
+                        deviceId = newDeviceMessage.getDeviceId();
+                        stringBuffer.append(deviceId);
+                        stringBuffer.append(" , ");
+                    }
+                    if (!TextUtils.isEmpty(newDeviceMessage.getDeviceType())) {
+                        stringBuffer.append("DeviceType:");
+                        stringBuffer.append(newDeviceMessage.getDeviceType());
+                        stringBuffer.append(" , ");
+                    }
+                    if (newDeviceMessage.getPlatform() > 0) {
+                        stringBuffer.append("Platform:");
+                        stringBuffer.append(newDeviceMessage.getPlatform());
+                        stringBuffer.append(" , ");
+                    }
+                    if (newDeviceMessage.getUpdateDt() > 0) {
+                        stringBuffer.append("UpdateDt:");
+                        stringBuffer.append(newDeviceMessage.getUpdateDt());
+                    }
+                    SLog.e("NewDeviceMessage", "NewDeviceMessage : " + stringBuffer.toString());
+                }
+                eventListener.onNewDeviceMessage(deviceId);
             }
 
             return false;
@@ -451,13 +483,13 @@ public class ClassRepository extends BaseRepository {
         RtcManager.getInstance().subscribeAll(videoViews, callback);
     }
 
-    public void subscribeResource(String userId, RongRTCVideoView videoView, ResultCallback<String> callback) {
-        RtcManager.getInstance().subscribe(userId, videoView, callback);
+    public void subscribeResource(String userId, RongRTCVideoView videoView, int role,ResultCallback<String> callback) {
+        RtcManager.getInstance().subscribe(userId, videoView, role,callback);
     }
 
-   public void subscribeResource(String userId, RongRTCVideoView videoView, RongRTCVideoView screenShareView, ResultCallback<String> callback) {
-        RtcManager.getInstance().subscribe(userId, videoView, screenShareView, callback);
-    }
+   public void subscribeResource(String userId, RongRTCVideoView videoView, RongRTCVideoView screenShareView, int role, ResultCallback<String> callback) {
+       RtcManager.getInstance().subscribe(userId, videoView, screenShareView, role,callback);
+   }
 
     public void unSubscribeResource(String userId,  ResultCallback<String> callback) {
         RtcManager.getInstance().unSubscribe(userId, callback);
@@ -518,7 +550,7 @@ public class ClassRepository extends BaseRepository {
         public void onRemoteUserUnPublishResource(String userId, List<RongRTCAVInputStream> list) {
             if (listener != null) {
                 StreamResource streamResource = getUnPublicStreamResource(userId, list);
-                listener.onRemoveVideoUser(streamResource);
+                listener.onUserLeft(streamResource);
             }
         }
 
@@ -547,14 +579,14 @@ public class ClassRepository extends BaseRepository {
         @Override
         public void onUserLeft(String userId) {
             if (listener != null) {
-                listener.onRemoveVideoUser(getUnPublicStreamResource(userId, null));
+                listener.onUserLeft(getUnPublicStreamResource(userId, null));
             }
         }
 
         @Override
         public void onUserOffline(String userId) {
             if (listener != null) {
-                listener.onRemoveVideoUser(getUnPublicStreamResource(userId, null));
+                listener.onUserOffline(getUnPublicStreamResource(userId, null));
             }
         }
 

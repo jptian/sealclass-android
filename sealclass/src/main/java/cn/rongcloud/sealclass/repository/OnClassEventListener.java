@@ -102,4 +102,5 @@ public interface OnClassEventListener {
      */
     void onExistUnReadMessage(int count);
 
+    void onNewDeviceMessage(String deviceId);
 }

@@ -12,20 +12,20 @@ import cn.rongcloud.sealclass.permission.PermissionGroupLevel;
  */
 public enum Role {
     /**
-     * 助教权限组
+     * 助教权限组 ,RoleSuperAdmin("RoleSuperAdmin", 1),
      */
     ASSISTANT(1,PermissionGroupLevel.GROUP_ASSISTANT),
     /**
-     * 讲师权限组
+     * 讲师权限组->  RoleTeacher("RoleTeacher", 10),
      */
-    LECTURER(2, PermissionGroupLevel.GROUP_LECTURER),
+    LECTURER(10, PermissionGroupLevel.GROUP_LECTURER),
 
     /**
-     * 学员权限组
+     * 学员权限组->RoleStudent("RoleStudent", 20);
      */
-    STUDENT(3, PermissionGroupLevel.GROUP_STUDENT),
+    STUDENT(20, PermissionGroupLevel.GROUP_STUDENT),
     /**
-     * 旁听者权限组
+     * 旁听者权限组->RoleAdmin("RoleAdmin", 2),
      */
     LISTENER(4, PermissionGroupLevel.GROUP_LISTENER);
 

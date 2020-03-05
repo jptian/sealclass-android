@@ -27,10 +27,10 @@ public class LoginViewModel extends AndroidViewModel {
         userRepository = new UserRepository(application.getApplicationContext());
     }
 
-    public LiveData<RequestState> login(String roomId, boolean isListener, String userName) {
+    public LiveData<RequestState> login(String roomId, boolean isListener, String userPhone, String schoolId,int role, String password,int selectedResolutionId) {
         final StateLiveData stateLiveData = new StateLiveData();
         stateLiveData.loading();
-        userRepository.login(roomId, isListener, userName, new ResultCallback<LoginResult>() {
+        userRepository.login(roomId, isListener, userPhone, schoolId, password,role, selectedResolutionId,new ResultCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult result) {
                 loginResultLiveData.postValue(result);

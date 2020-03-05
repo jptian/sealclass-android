@@ -1,9 +1,12 @@
 package cn.rongcloud.sealclass.ui;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -32,12 +35,16 @@ import cn.rongcloud.sealclass.R;
 import cn.rongcloud.sealclass.common.ErrorCode;
 import cn.rongcloud.sealclass.model.LoginResult;
 import cn.rongcloud.sealclass.model.RequestState;
+import cn.rongcloud.sealclass.model.Role;
 import cn.rongcloud.sealclass.rtc.VideoResolution;
 import cn.rongcloud.sealclass.ui.dialog.CommonDialog;
 import cn.rongcloud.sealclass.ui.dialog.LoadingDialog;
 import cn.rongcloud.sealclass.ui.fragment.LoginSettingFragment;
+import cn.rongcloud.sealclass.utils.CacheConts;
+import cn.rongcloud.sealclass.utils.SessionManager;
 import cn.rongcloud.sealclass.utils.TextMatchUtils;
 import cn.rongcloud.sealclass.utils.ToastUtils;
+import cn.rongcloud.sealclass.utils.update.UpDateApkHelper;
 import cn.rongcloud.sealclass.viewmodel.LoginViewModel;
 
 import static cn.rongcloud.rtc.utils.BuildInfo.MANDATORY_PERMISSIONS;
@@ -52,9 +59,9 @@ import static cn.rongcloud.rtc.utils.BuildInfo.MANDATORY_PERMISSIONS;
 public class LoginActivity extends BaseActivity implements View.OnClickListener {
     private final int DEFAULT_VIDEO_RESOLUTION_ID = VideoResolution.RESOLUTION_640_480_15f.getId(); // 默认使用 640 * 480
     private EditText classIdEt;
-    private EditText userNameEt;
+    private EditText userPhoneEt, schoolIdEt, passwordEt;
     private TextView classIdTipsTv;
-    private TextView userNameTipsTv;
+    private TextView userPhoneTipsTv, schoolIdTipsTv, passwordTips;
     private CheckBox listenerCb;
     private CheckBox closeCameraCb;
     private TextView loginTv;
@@ -63,7 +70,21 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     private LoginSettingFragment settingFragment;
     private int selectedResolutionId = DEFAULT_VIDEO_RESOLUTION_ID;//选择分辨率
     private boolean isClassNameValid;
-    private boolean isUserNameValid;
+    private boolean isUserPhoneValid;
+    private boolean isPasswordValid=true;
+    private boolean isSchoolValid;
+
+    private static final String[] PERMISSIONS = {
+            "android.permission.MODIFY_AUDIO_SETTINGS",
+            "android.permission.RECORD_AUDIO",
+            "android.permission.INTERNET",
+            "android.permission.CAMERA",
+            "android.permission.READ_PHONE_STATE",
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            "android.permission.BLUETOOTH_ADMIN",
+            "android.permission.BLUETOOTH"
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,6 +96,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         loginViewModel = ViewModelProviders.of(this).get(LoginViewModel.class);
         initView();
         observeModel();
+
+        if(checkPermissions(1)) {
+            new UpDateApkHelper(this).diffVersionFromServer();
+        }
     }
 
     private void initView() {
@@ -88,10 +113,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         classIdEt = findViewById(R.id.login_et_class_id);
         classIdTipsTv = findViewById(R.id.login_tv_class_id_tips);
-        userNameEt = findViewById(R.id.login_et_user_name);
-        userNameTipsTv = findViewById(R.id.login_tv_user_name_tips);
+        userPhoneEt = findViewById(R.id.login_et_user_phone);
+        userPhoneTipsTv = findViewById(R.id.login_tv_user_phone_tips);
         listenerCb = findViewById(R.id.login_cb_listener);
         closeCameraCb = findViewById(R.id.login_cb_close_camera);
+
+        schoolIdTipsTv = findViewById(R.id.login_tv_class_schoolId_tips);
+        schoolIdEt = findViewById(R.id.login_et_school_Id);
+
+        passwordEt = findViewById(R.id.login_et_user_pwd);
+        passwordTips = findViewById(R.id.login_tv_user_password_tips);
 
         // 课堂 id 失去监听时判断
         classIdEt.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -108,9 +139,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                         classIdEt.setText(input.trim());
                         classIdEt.setSelection(classIdEt.getText().length());
                     }
-
-                    checkClassIdIsValid();
-                    checkCanLogin();
                 }else{
                     classIdEt.setBackground(getResources().getDrawable(R.drawable.login_bg_input_text));
                 }
@@ -121,7 +149,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if(actionId == EditorInfo.IME_ACTION_DONE){
-                    userNameEt.clearFocus();
+                    userPhoneEt.clearFocus();
                     return true;
                 }
 
@@ -130,39 +158,102 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         });
 
         // 用户姓名 输入失去监听时判断
-        userNameEt.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        userPhoneEt.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if(!hasFocus){
-                    String input = userNameEt.getText().toString();
+                    String input = userPhoneEt.getText().toString();
                     if (TextUtils.isEmpty(input)) {
-                        userNameEt.setBackground(getResources().getDrawable(R.drawable.login_bg_input_text));
-                        userNameTipsTv.setVisibility(View.INVISIBLE);
+                        userPhoneEt.setBackground(getResources().getDrawable(R.drawable.login_bg_input_text));
+                        userPhoneTipsTv.setVisibility(View.INVISIBLE);
                     }
 
                     if (!input.trim().equals(input)) {
-                        userNameEt.setText(input.trim());
-                        userNameEt.setSelection(userNameEt.getText().length());
+                        userPhoneEt.setText(input.trim());
+                        userPhoneEt.setSelection(userPhoneEt.getText().length());
                     }
-
-                    checkUserNameIsValid();
-                    checkCanLogin();
                 }else{
-                    userNameEt.setBackground(getResources().getDrawable(R.drawable.login_bg_input_text));
+                    userPhoneEt.setBackground(getResources().getDrawable(R.drawable.login_bg_input_text));
                 }
             }
         });
-        userNameEt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        userPhoneEt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if(actionId == EditorInfo.IME_ACTION_DONE){
-                    userNameEt.clearFocus();
+                    userPhoneEt.clearFocus();
                     hideInputKeyboard();
                     return true;
                 }
                 return false;
             }
         });
+
+        // 用户密码 输入失去监听时判断
+//        passwordEt.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+//            @Override
+//            public void onFocusChange(View v, boolean hasFocus) {
+//                if(!hasFocus){
+//                    String input = passwordEt.getText().toString();
+//                    if (TextUtils.isEmpty(input)) {
+//                        passwordEt.setBackground(getResources().getDrawable(R.drawable.login_bg_input_text));
+//                        passwordTips.setVisibility(View.INVISIBLE);
+//                    }
+//
+//                    if (!input.trim().equals(input)) {
+//                        passwordEt.setText(input.trim());
+//                        passwordEt.setSelection(passwordEt.getText().length());
+//                    }
+//                }else{
+//                    passwordEt.setBackground(getResources().getDrawable(R.drawable.login_bg_input_text));
+//                }
+//            }
+//        });
+//        passwordEt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//            @Override
+//            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+//                if(actionId == EditorInfo.IME_ACTION_DONE){
+//                    passwordEt.clearFocus();
+//                    hideInputKeyboard();
+//                    return true;
+//                }
+//                return false;
+//            }
+//        });
+
+        // 机构id 输入失去监听时判断
+        schoolIdEt.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus){
+                    String input = schoolIdEt.getText().toString();
+                    if (TextUtils.isEmpty(input)) {
+                        schoolIdEt.setBackground(getResources().getDrawable(R.drawable.login_bg_input_text));
+                        schoolIdTipsTv.setVisibility(View.INVISIBLE);
+                    }
+
+                    if (!input.trim().equals(input)) {
+                        schoolIdEt.setText(input.trim());
+                        schoolIdEt.setSelection(schoolIdEt.getText().length());
+                    }
+                }else{
+                    schoolIdEt.setBackground(getResources().getDrawable(R.drawable.login_bg_input_text));
+                }
+            }
+        });
+        schoolIdEt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId == EditorInfo.IME_ACTION_DONE){
+                    schoolIdEt.clearFocus();
+                    hideInputKeyboard();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        addTextChangedListener();
 
         listenerCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -207,6 +298,83 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         fragmentTransaction.add(R.id.login_fl_setting_container,settingFragment);
         fragmentTransaction.hide(settingFragment);
         fragmentTransaction.commitAllowingStateLoss();
+        initSP();
+    }
+
+    private void saveSP(String phone, String password, String classId, String schoolId) {
+        SessionManager.getInstance().put(CacheConts.SP_PHONE_KEY, phone);
+        SessionManager.getInstance().put(CacheConts.SP_PASSWORD_KEY, password);
+        SessionManager.getInstance().put(CacheConts.SP_CLASS_ID_KEY, classId);
+        SessionManager.getInstance().put(CacheConts.SP_SCHOOL_ID_KEY, schoolId);
+    }
+
+    //修改用户输入完之后不点击actionId == EditorInfo.IME_ACTION_DONE  ，而是点击关闭输入法，导致的加入课堂按钮不可用；
+    private void addTextChangedListener() {
+        schoolIdEt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                checkSchoolIsValid();
+                checkCanLogin();
+            }
+        });
+
+//        passwordEt.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                checkPasswordIsValid();
+//                checkCanLogin();
+//            }
+//        });
+
+        userPhoneEt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                checkUserPhoneIsValid();
+                checkCanLogin();
+            }
+        });
+
+        classIdEt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                checkClassIdIsValid();
+                checkCanLogin();
+            }
+        });
     }
 
     private void observeModel() {
@@ -250,23 +418,61 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     }
 
     /**
-     * 检查 用户姓名 是否合法
+     * 检查 手机号码 是否合法
      *
      * @return
      */
-    private boolean checkUserNameIsValid() {
-        String input = userNameEt.getText().toString();
-        if (TextMatchUtils.isHanziDigistsLetters(input)) {
-            userNameEt.setBackground(getResources().getDrawable(R.drawable.login_bg_input_text));
-            userNameTipsTv.setVisibility(View.INVISIBLE);
-            isUserNameValid = true;
+    private boolean checkUserPhoneIsValid() {
+        String input = userPhoneEt.getText().toString();
+        if (!TextUtils.isEmpty(input) && input.length() == 11) {
+            userPhoneEt.setBackground(getResources().getDrawable(R.drawable.login_bg_input_text));
+            userPhoneTipsTv.setVisibility(View.INVISIBLE);
+            isUserPhoneValid = true;
             return true;
         } else {
-            if(!TextUtils.isEmpty(input)) {
-                userNameEt.setBackground(getResources().getDrawable(R.drawable.login_bg_input_text_error));
-                userNameTipsTv.setVisibility(View.VISIBLE);
-            }
-            isUserNameValid = false;
+            userPhoneEt.setBackground(getResources().getDrawable(R.drawable.login_bg_input_text_error));
+            userPhoneTipsTv.setVisibility(View.VISIBLE);
+            isUserPhoneValid = false;
+            return false;
+        }
+    }
+
+    /**
+     * 检查 密码 是否合法
+     *
+     * @return
+     */
+    private boolean checkPasswordIsValid() {
+        String input = passwordEt.getText().toString();
+        if (!TextUtils.isEmpty(input) && input.length() >= 6 && input.length() <= 11) {
+            passwordEt.setBackground(getResources().getDrawable(R.drawable.login_bg_input_text));
+            passwordTips.setVisibility(View.INVISIBLE);
+            isPasswordValid = true;
+            return true;
+        } else {
+            passwordEt.setBackground(getResources().getDrawable(R.drawable.login_bg_input_text_error));
+            passwordTips.setVisibility(View.VISIBLE);
+            isPasswordValid = false;
+            return false;
+        }
+    }
+
+    /**
+     * 检查 机构号 是否合法
+     *
+     * @return
+     */
+    private boolean checkSchoolIsValid() {
+        String input = schoolIdEt.getText().toString();
+        if (!TextUtils.isEmpty(input) && TextMatchUtils.isDigistsLetters(input) && input.length() >= 4 && input.length() <= 8) {
+            schoolIdEt.setBackground(getResources().getDrawable(R.drawable.login_bg_input_text));
+            schoolIdTipsTv.setVisibility(View.INVISIBLE);
+            isSchoolValid = true;
+            return true;
+        } else {
+            schoolIdEt.setBackground(getResources().getDrawable(R.drawable.login_bg_input_text_error));
+            schoolIdTipsTv.setVisibility(View.VISIBLE);
+            isSchoolValid = false;
             return false;
         }
     }
@@ -292,19 +498,20 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
      */
     private void requestLogin() {
         // 判断是否音视频相关权限并开启
-        if(!checkPermissions()) return;
+        if(!checkPermissions(0)) return;
 
         if (checkCanLogin()) {
             String classId = classIdEt.getText().toString();
-            String userName = userNameEt.getText().toString();
+            String userName = userPhoneEt.getText().toString();
+            String schoolId = schoolIdEt.getText().toString();
+//            String password = passwordEt.getText().toString();
             boolean isListener = listenerCb.isChecked();
             final LoadingDialog loadingDialog = new LoadingDialog();
             loadingDialog.showNow(getSupportFragmentManager(), null);
 
-            // 设置分辨率
-            loginViewModel.setVideoResolution(VideoResolution.getById(selectedResolutionId));
+            saveSP(userName,"",classId,schoolId);
 
-            loginViewModel.login(classId, isListener, userName).observe(this, new Observer<RequestState>() {
+            loginViewModel.login(classId, isListener, userName, schoolId, Role.STUDENT.getValue(), "123456",selectedResolutionId).observe(this, new Observer<RequestState>() {
                 @Override
                 public void onChanged(RequestState requestState) {
                     RequestState.State state = requestState.getState();
@@ -346,7 +553,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
      * @return
      */
     private boolean checkCanLogin(){
-        boolean canLogin = isClassNameValid && isUserNameValid;
+        boolean canLogin = isClassNameValid && isUserPhoneValid && isPasswordValid && isSchoolValid;
         if(canLogin){
             loginTv.setEnabled(true);
             loginTv.setAlpha(1);
@@ -383,18 +590,18 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     public void onKeyboardStateChanged(boolean isShown, int height) {
         if(!isShown){
             classIdEt.clearFocus();
-            userNameEt.clearFocus();
+            userPhoneEt.clearFocus();
         }
     }
 
     /**
      * 判断是否有音视频相关权限
-     *
+     * @param requestCode 0:login , 1:update
      * @return
      */
-    private boolean checkPermissions() {
+    private boolean checkPermissions(int requestCode) {
         List<String> unGrantedPermissions = new ArrayList();
-        for (String permission : MANDATORY_PERMISSIONS) {
+        for (String permission : PERMISSIONS) {
             if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
                 unGrantedPermissions.add(permission);
             }
@@ -403,7 +610,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             return true;
         } else {//部分权限未获得，重新请求获取权限
             String[] array = new String[unGrantedPermissions.size()];
-            ActivityCompat.requestPermissions(this, unGrantedPermissions.toArray(array), 0);
+            ActivityCompat.requestPermissions(this, unGrantedPermissions.toArray(array), requestCode);
             ToastUtils.showToast(R.string.toast_error_need_app_permission, Toast.LENGTH_LONG);
             return false;
         }
@@ -428,7 +635,23 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                     }
                 }
                 break;
+            case 1:
+                if (grantResults.length > 0) {
+                    boolean isSuccess = true;
+                    for (int i = 0; i < grantResults.length; i++) {
+                        if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                            isSuccess = false;
+                            break;
+                        }
+                    }
 
+                    if (isSuccess) {
+                        new UpDateApkHelper(this).diffVersionFromServer();
+                    }
+                }
+                break;
+                default:
+                    break;
         }
     }
 
@@ -444,7 +667,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
         // 初始化状态，保证当 Activity 被回收再创建时状态正确
         checkClassIdIsValid();
-        checkUserNameIsValid();
+        checkUserPhoneIsValid();
+//        checkPasswordIsValid();
+        checkSchoolIsValid();
         checkCanLogin();
     }
 
@@ -454,6 +679,39 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
             showSetting(false);
         }else {
             super.onBackPressed();
+        }
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initSP();
+    }
+
+    private void initSP() {
+        //        老师 15810530010 ~ 15810530019, 123456
+//        学生 15810530020 ~ 15810530029, 123456
+        //学生1
+//        userPhoneEt.setText("15810530020");
+        //学生2
+//        userPhoneEt.setText("15810530021");
+//
+//        classIdEt.setText("11223344");
+        schoolIdEt.setText("emlZvv");
+//        passwordEt.setText("123456");
+        //
+        if (SessionManager.getInstance().contains(CacheConts.SP_PHONE_KEY)) {
+            userPhoneEt.setText(SessionManager.getInstance().getString(CacheConts.SP_PHONE_KEY));
+        }
+        if (SessionManager.getInstance().contains(CacheConts.SP_PASSWORD_KEY)) {
+            passwordEt.setText(SessionManager.getInstance().getString(CacheConts.SP_PASSWORD_KEY));
+        }
+        if (SessionManager.getInstance().contains(CacheConts.SP_CLASS_ID_KEY)) {
+            classIdEt.setText(SessionManager.getInstance().getString(CacheConts.SP_CLASS_ID_KEY));
+        }
+        if (SessionManager.getInstance().contains(CacheConts.SP_SCHOOL_ID_KEY)) {
+            schoolIdEt.setText(SessionManager.getInstance().getString(CacheConts.SP_SCHOOL_ID_KEY));
         }
     }
 }

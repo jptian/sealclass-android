@@ -175,10 +175,10 @@ public class ClassResourceFragment extends BaseFragment {
     // 获取更新一帧图像
     // 目前由于 RTC 提供一帧方法不稳定， 所以注释掉
     public void updateUserDisplayRes() {
-//        if (resourceListAdapter != null) {
-//            final List<UserDisplayResource> userDisplayResource = resourceListAdapter.getUserDisplayResource();
-//            updateUserDisplayResource(userDisplayResource);
-//        }
+        if (resourceListAdapter != null) {
+            final List<UserDisplayResource> userDisplayResource = resourceListAdapter.getUserDisplayResource();
+            updateUserDisplayResource(userDisplayResource);
+        }
     }
 
     // 更新图像

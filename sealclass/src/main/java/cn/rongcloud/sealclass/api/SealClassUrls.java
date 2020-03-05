@@ -45,6 +45,5 @@ public class SealClassUrls {
 
     public static final String SWITCH_DISPLAY = "room/display";
 
-
-
+    public static final String APPVERSION_LATEST = "appversion/latest";
 }

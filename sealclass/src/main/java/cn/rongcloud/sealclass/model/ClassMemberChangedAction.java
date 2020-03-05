@@ -7,6 +7,7 @@ public enum ClassMemberChangedAction {
     JOIN(1),
     LEAVE(2),
     KICK(3),
+    DESTROY(4),
     UNKNOWN(-999);
 
     private int value;

@@ -4,12 +4,21 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class ClassMember implements Serializable {
+    private String schoolId;
     private boolean camera;
     private long joinTime;
     private boolean microphone;
     private int role;
     private String userId;
     private String userName;
+
+    public String getSchoolId() {
+        return schoolId;
+    }
+
+    public void setSchoolId(String schoolId) {
+        this.schoolId = schoolId;
+    }
 
     public boolean isCamera() {
         return camera;

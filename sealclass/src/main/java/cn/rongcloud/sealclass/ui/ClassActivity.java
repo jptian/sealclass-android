@@ -45,8 +45,6 @@ import cn.rongcloud.sealclass.ui.dialog.ApplySpeechRequestDialog;
 import cn.rongcloud.sealclass.ui.dialog.CommonDialog;
 import cn.rongcloud.sealclass.ui.dialog.DowngradeListDialog;
 import cn.rongcloud.sealclass.ui.fragment.ClassBigVideoWindowFragment;
-import cn.rongcloud.sealclass.ui.fragment.ClassMemberListFragment;
-import cn.rongcloud.sealclass.ui.fragment.ClassResourceFragment;
 import cn.rongcloud.sealclass.ui.fragment.ClassScreenControlFragment;
 import cn.rongcloud.sealclass.ui.fragment.ClassShareScreenFragment;
 import cn.rongcloud.sealclass.ui.fragment.ClassTopOperateControlFragment;
@@ -81,7 +79,6 @@ public class ClassActivity extends ExtendBaseActivity implements ToastBySelfComp
     private ClassVideoListFragment videoListFragment;
     private ClassScreenControlFragment screenControlFragment;
     private ClassBigVideoWindowFragment videoBigWidowFragment;
-    private ClassResourceFragment resourceFragment;
 
     private View parentView;
 
@@ -328,6 +325,7 @@ public class ClassActivity extends ExtendBaseActivity implements ToastBySelfComp
 
     @Override
     protected int getLayoutResId() {
+        addFlags();
         return R.layout.class_activity;
     }
 
@@ -409,9 +407,6 @@ public class ClassActivity extends ExtendBaseActivity implements ToastBySelfComp
         screenControlFragment = new ClassScreenControlFragment();
 
         HashMap<ClassScreenControlFragment.ControlOperateType, Boolean> values = new HashMap<>();
-        values.put(ClassScreenControlFragment.ControlOperateType.WHITE_BOARD, true);
-        values.put(ClassScreenControlFragment.ControlOperateType.RES_LIBRARY, true);
-        values.put(ClassScreenControlFragment.ControlOperateType.MEMBER_LIST, true);
         values.put(ClassScreenControlFragment.ControlOperateType.VIDEO_LIST, true);
         values.put(ClassScreenControlFragment.ControlOperateType.IM, true);
         screenControlFragment.setButtonEnableStatus(values);
@@ -428,8 +423,6 @@ public class ClassActivity extends ExtendBaseActivity implements ToastBySelfComp
             }
 
         });
-
-        ClassMemberListFragment memberListFragment = new ClassMemberListFragment();
 
         ClassTopOperateControlFragment topOperateControlFragment = new ClassTopOperateControlFragment();
         final ClassShareScreenFragment shareScreenFragment = new ClassShareScreenFragment();
@@ -482,7 +475,6 @@ public class ClassActivity extends ExtendBaseActivity implements ToastBySelfComp
         });
 
 
-        resourceFragment = new ClassResourceFragment();
         videoListFragment = new ClassVideoListFragment();
         videoListFragment.setOnVideoViewItemClickListener(new ClassVideoListFragment.OnVideoViewItemClickListener() {
             @Override
@@ -513,10 +505,8 @@ public class ClassActivity extends ExtendBaseActivity implements ToastBySelfComp
         });
         getSupportFragmentManager().beginTransaction().
                 add(R.id.class_container_screen_control, screenControlFragment).
-                add(R.id.class_container_menber_list, memberListFragment).
                 add(R.id.class_container_rtc_control, topOperateControlFragment).
                 add(R.id.class_container_share_screen, shareScreenFragment).
-                add(R.id.class_container_resource_library, resourceFragment).
                 add(R.id.class_container_video_list, videoListFragment).
                 add(R.id.class_container_video_big_window, videoBigWidowFragment).
                 commit();
@@ -561,10 +551,6 @@ public class ClassActivity extends ExtendBaseActivity implements ToastBySelfComp
                     containerMemberList.setVisibility(View.GONE);
                     containerResourceLibrary.setVisibility(View.VISIBLE);
                     containerIM.setVisibility(View.GONE);
-                    // 刷新资源列表，获取最后一帧
-                    if (resourceFragment != null) {
-                        resourceFragment.updateUserDisplayRes();
-                    }
                 } else {
                     containerResourceLibrary.setVisibility(View.GONE);
                 }
@@ -787,6 +773,7 @@ public class ClassActivity extends ExtendBaseActivity implements ToastBySelfComp
                 videoBigWidowFragment.show(member);
                 containerBigVideoWindow.setVisibility(View.VISIBLE);
             } else {
+                classViewModel.exchangeStreamToTinyStream(member.getUserId());
                 containerBigVideoWindow.setVisibility(View.GONE);
             }
 
@@ -906,6 +893,14 @@ public class ClassActivity extends ExtendBaseActivity implements ToastBySelfComp
 //            }
 //        }
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (classViewModel != null && classViewModel.isInRoom() && !classViewModel.isMuteVideo()) {
+            classViewModel.startCapture();
+        }
     }
 }
 

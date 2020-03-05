@@ -31,7 +31,13 @@ public enum ErrorCode {
     IM_ERROR(10003, R.string.error_im_common_error),
     RTC_ERROR(10004, R.string.error_rtc_common_error),
     UNKNOWN_ERROR(99999, R.string.error_unkown_error),
-    NONE_ERROR(-1, 0);
+    NONE_ERROR(-1, 0),
+    ERR_USER_NOT_EXIST(40, R.string.err_user_not_exist),
+    ERR_USER_PASSWORD_ERROR(41, R.string.err_user_password_error),
+    ERR_USER_HAS_EXIST(42, R.string.err_user_has_exist),
+    ERR_USER_ROLE_ERROR(43, R.string.err_user_role_error),
+    ERR_SCHOOL_NOT_EXIST(50, R.string.err_school_not_exist),
+    rtc_error_VoIPNotAvailable(99998, R.string.VoIPnotavailable);
 
     private int code;
     private int messageResId;

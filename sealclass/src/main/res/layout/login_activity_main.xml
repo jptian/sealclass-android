@@ -7,156 +7,261 @@
     android:background="@color/white"
     android:orientation="vertical">
 
-    <!-- Logo -->
-    <ImageView
-        android:id="@+id/login_iv_logo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="25dp"
-        android:src="@drawable/login_ic_logo" />
-    <TextView
-        android:id="@+id/login_tv_app_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/login_iv_logo"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="10dp"
-        android:text="@string/app_name"
-        android:textColor="@color/text_black"
-        android:textSize="18dp" />
 
-
-    <RelativeLayout
-        android:id="@+id/login_rl_input_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/login_tv_app_name"
-        android:layout_centerHorizontal="true"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        >
-
-        <!-- 输入 课堂 id -->
-        <EditText
-            android:id="@+id/login_et_class_id"
-            style="@style/LoginEditTextStyle"
-            android:layout_width="300dp"
-            android:layout_height="40dp"
-            android:layout_centerHorizontal="true"
-            android:hint="@string/login_input_hint_class_id"
-            android:inputType="text"
-            android:maxLength="40" />
-        <!-- 输入课堂 id 异常提示 -->
-        <TextView
-            android:id="@+id/login_tv_class_id_tips"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/login_et_class_id"
-            android:layout_alignLeft="@id/login_et_class_id"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="1.5dp"
-            android:layout_marginBottom="1.5dp"
-            android:text="@string/login_error_tips_class_id"
-            android:textColor="@color/text_red"
-            android:textSize="12dp"
-            android:visibility="invisible"
-            tools:visibility="visible" />
-
-        <!-- 输入用户姓名 -->
-        <EditText
-            android:id="@+id/login_et_user_name"
-            style="@style/LoginEditTextStyle"
-            android:layout_width="300dp"
-            android:layout_height="40dp"
-            android:layout_below="@id/login_tv_class_id_tips"
-            android:layout_centerHorizontal="true"
-            android:hint="@string/login_input_hint_user_name"
-            android:inputType="textPersonName"
-            android:maxLength="10" />
-
-        <!-- 输入姓名异常提示 -->
-        <TextView
-            android:id="@+id/login_tv_user_name_tips"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/login_et_user_name"
-            android:layout_alignLeft="@id/login_et_user_name"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="1.5dp"
-            android:layout_marginBottom="1.5dp"
-            android:text="@string/login_error_tips_user_name"
-            android:textColor="@color/text_red"
-            android:textSize="12dp"
-            android:visibility="invisible"
-            tools:visibility="visible" />
-    </RelativeLayout>
-
-    <!-- 登录选项 -->
-    <LinearLayout
-        android:id="@+id/login_ll_login_option"
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/login_rl_input_container"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="1.5dp"
-        android:gravity="left"
-        android:orientation="horizontal"
-        android:paddingLeft="14dp"
-        android:paddingRight="14dp">
-
-        <CheckBox
-            android:id="@+id/login_cb_listener"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:button="@drawable/common_ic_checkbox_selector"
-            android:paddingLeft="8dp"
-            android:text="@string/login_option_listener"
-            android:textColor="@color/text_gray" />
-
-        <CheckBox
-            android:id="@+id/login_cb_close_camera"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="40dp"
-            android:background="@android:color/transparent"
-            android:button="@drawable/common_ic_checkbox_selector"
-            android:paddingLeft="8dp"
-            android:text="@string/login_option_enter_without_video"
-            android:textColor="@color/text_gray"
-            android:visibility="gone" />
-    </LinearLayout>
-
-    <!-- 加入课堂 -->
-    <TextView
-        android:id="@+id/login_tv_enter"
-        android:layout_width="300dp"
-        android:layout_height="44dp"
-        android:layout_below="@+id/login_ll_login_option"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:alpha="0.40"
-        android:background="@drawable/login_btn_enter"
-        android:enabled="false"
-        android:gravity="center"
-        android:text="@string/login_enter_class"
-        android:textColor="@color/text_white"
-        android:textSize="17dp" />
-
-    <ImageView
-        android:id="@+id/login_iv_setting"
-        android:layout_width="41dp"
-        android:layout_height="41dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="24dp"
-        android:layout_marginRight="15dp"
-        android:padding="9dp"
-        android:src="@drawable/login_ic_setting" />
-
-    <FrameLayout
-        android:id="@+id/login_fl_setting_container"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:scrollbars="vertical"
+        android:fadeScrollbars="true"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <!-- Logo -->
+            <ImageView
+                android:id="@+id/login_iv_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="25dp"
+                android:src="@drawable/login_ic_logo" />
+            <TextView
+                android:id="@+id/login_tv_app_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/login_iv_logo"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="10dp"
+                android:text="@string/app_name"
+                android:textColor="@color/text_black"
+                android:textSize="18dp" />
+
+
+            <LinearLayout
+                android:id="@+id/login_linear_input_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/login_tv_app_name"
+                android:layout_centerHorizontal="true"
+                android:orientation="horizontal"
+                android:focusable="true"
+                android:weightSum="2"
+                android:focusableInTouchMode="true">
+
+                <!-- 机构和课堂输入框-->
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginRight="30dp"
+                    android:layout_height="wrap_content">
+
+                    <!-- 机构账号 -->
+                    <EditText
+                        android:id="@+id/login_et_school_Id"
+                        style="@style/LoginEditTextStyle"
+                        android:layout_width="200dp"
+                        android:layout_alignParentRight="true"
+                        android:layout_height="40dp"
+                        android:layout_marginBottom="3dp"
+                        android:hint="@string/login_input_hint_organization_id"
+                        android:maxLength="8" />
+
+                    <!-- 输入机构 id 异常提示 -->
+                    <TextView
+                        android:id="@+id/login_tv_class_schoolId_tips"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignLeft="@id/login_et_class_id"
+                        android:layout_alignParentRight="true"
+                        android:layout_below="@+id/login_et_school_Id"
+                        android:layout_marginBottom="1.5dp"
+                        android:layout_marginLeft="19dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_marginTop="5dp"
+                        android:text="@string/login_error_tips_school_id"
+                        android:textColor="@color/text_red"
+                        android:textSize="12dp"
+                        android:visibility="invisible"
+                        tools:visibility="visible" />
+
+                    <!-- 输入 课堂 id -->
+                    <EditText
+                        android:id="@+id/login_et_class_id"
+                        android:layout_alignParentRight="true"
+                        style="@style/LoginEditTextStyle"
+                        android:layout_width="200dp"
+                        android:layout_below="@+id/login_tv_class_schoolId_tips"
+                        android:layout_height="40dp"
+                        android:hint="@string/login_input_hint_class_id"
+                        android:inputType="text"
+                        android:maxLength="40" />
+
+                    <!-- 输入课堂 id 异常提示 -->
+                    <TextView
+                        android:id="@+id/login_tv_class_id_tips"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignLeft="@id/login_et_class_id"
+                        android:layout_below="@+id/login_et_class_id"
+                        android:layout_marginBottom="1.5dp"
+                        android:layout_marginLeft="19dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_marginTop="5dp"
+                        android:text="@string/login_error_tips_class_id"
+                        android:textColor="@color/text_red"
+                        android:textSize="12dp"
+                        android:visibility="invisible"
+                        tools:visibility="visible" />
+
+                </RelativeLayout>
+
+                <!-- 手机号码和密码输入框 -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginLeft="30dp"
+                    android:layout_height="wrap_content">
+
+                    <!-- 输入用户手机号码 -->
+                    <EditText
+                        android:id="@+id/login_et_user_phone"
+                        style="@style/LoginEditTextStyle"
+                        android:layout_width="200dp"
+                        android:layout_height="40dp"
+                        android:layout_centerHorizontal="true"
+                        android:hint="@string/login_input_hint_user_phone"
+                        android:layout_marginBottom="3dp"
+                        android:inputType="number"
+                        android:maxLength="11" />
+
+                    <!-- 输入手机号码异常提示 -->
+                    <TextView
+                        android:id="@+id/login_tv_user_phone_tips"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_below="@+id/login_et_user_phone"
+                        android:layout_marginBottom="1.5dp"
+                        android:layout_marginLeft="19dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_marginTop="5dp"
+                        android:text="@string/login_error_tips_user_phone"
+                        android:textColor="@color/text_red"
+                        android:textSize="12dp"
+                        android:visibility="invisible"
+                        tools:visibility="visible" />
+
+
+                    <!-- 输入密码 -->
+                    <EditText
+                        android:id="@+id/login_et_user_pwd"
+                        style="@style/LoginEditTextStyle"
+                        android:layout_width="200dp"
+                        android:layout_height="40dp"
+                        android:layout_centerHorizontal="true"
+                        android:hint="@string/login_input_hint_user_pwd"
+                        android:visibility="invisible"
+                        android:inputType="textPersonName"
+                        android:maxLength="10" />
+
+
+                    <!-- 输入密码异常提示 -->
+                    <TextView
+                        android:id="@+id/login_tv_user_password_tips"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_below="@+id/login_et_user_pwd"
+                        android:layout_marginBottom="1.5dp"
+                        android:layout_marginLeft="19dp"
+                        android:layout_marginRight="1dp"
+                        android:layout_marginTop="5dp"
+                        android:text="@string/login_error_tips_password"
+                        android:textColor="@color/text_red"
+                        android:textSize="12dp"
+                        android:visibility="invisible"
+                        tools:visibility="visible" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- 登录选项 -->
+            <LinearLayout
+                android:id="@+id/login_ll_login_option"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/login_linear_input_container"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="1.5dp"
+                android:gravity="left"
+                android:visibility="gone"
+                android:orientation="horizontal"
+                android:paddingLeft="14dp"
+                android:paddingRight="14dp">
+
+                <CheckBox
+                    android:id="@+id/login_cb_listener"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:button="@drawable/common_ic_checkbox_selector"
+                    android:paddingLeft="8dp"
+                    android:visibility="gone"
+                    android:text="@string/login_option_listener"
+                    android:textColor="@color/text_gray" />
+
+                <CheckBox
+                    android:id="@+id/login_cb_close_camera"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:background="@android:color/transparent"
+                    android:button="@drawable/common_ic_checkbox_selector"
+                    android:paddingLeft="8dp"
+                    android:text="@string/login_option_enter_without_video"
+                    android:textColor="@color/text_gray"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- 加入课堂 -->
+            <TextView
+                android:id="@+id/login_tv_enter"
+                android:layout_width="300dp"
+                android:layout_height="44dp"
+                android:layout_below="@+id/login_linear_input_container"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="25dp"
+                android:alpha="0.40"
+                android:background="@drawable/login_btn_enter"
+                android:enabled="false"
+                android:gravity="center"
+                android:text="@string/login_enter_class"
+                android:textColor="@color/text_white"
+                android:textSize="17dp" />
+
+            <ImageView
+                android:id="@+id/login_iv_setting"
+                android:layout_width="41dp"
+                android:layout_height="41dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="24dp"
+                android:layout_marginRight="15dp"
+                android:padding="9dp"
+                android:src="@drawable/login_ic_setting" />
+
+            <FrameLayout
+                android:id="@+id/login_fl_setting_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </RelativeLayout>
+
+    </ScrollView>
+
 </RelativeLayout>

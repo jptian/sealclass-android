@@ -1,7 +1,6 @@
 package cn.rongcloud.sealclass.ui.adapter;
 
 import android.graphics.Bitmap;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,15 +8,11 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import cn.rongcloud.rtc.core.EglRenderer;
 import cn.rongcloud.sealclass.R;
 import cn.rongcloud.sealclass.model.UserDisplayResource;
 import cn.rongcloud.sealclass.model.WhiteBoard;
-import cn.rongcloud.sealclass.ui.VideoViewManager;
-import cn.rongcloud.sealclass.utils.log.SLog;
 
 /**
  * 课堂资源列表适配
@@ -55,16 +50,17 @@ public class ClassResourceListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, final ViewGroup parent) {
         final ViewHolder viewHolder;
-        if (convertView == null) {
+        convertView = null;
+//        if (convertView == null) {
             convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.class_item_resource_list, parent, false);
 
             viewHolder = new ViewHolder();
             viewHolder.resourceNameTv = convertView.findViewById(R.id.class_resource_item_tv_name);
             viewHolder.resourcePreviewIv = convertView.findViewById(R.id.class_resource_item_iv_preview);
             convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
-        }
+//        } else {
+//            viewHolder = (ViewHolder) convertView.getTag();
+//        }
 
         Object item = getItem(position);
 
@@ -74,7 +70,6 @@ public class ClassResourceListAdapter extends BaseAdapter {
             viewHolder.resourceNameTv.setText(whiteBoard.getName());
             viewHolder.resourceNameTv.setBackgroundColor(parent.getContext().getResources().getColor(R.color.white));
             viewHolder.resourceNameTv.setTextColor(parent.getContext().getResources().getColor(R.color.text_black));
-
         } else if (item instanceof UserDisplayResource) {
             UserDisplayResource userDisplayResource = (UserDisplayResource) item;
             viewHolder.resourcePreviewIv.setImageDrawable(null);

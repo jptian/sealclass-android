@@ -155,6 +155,9 @@ public class ClassScreenControlFragment extends BaseFragment {
         operateView.setGravity(Gravity.CENTER);
         operateView.setOrientation(LinearLayout.VERTICAL);
         operateView.setItemVisibility(ControlOperateType.HAS_MESSAGE.getValue(), View.GONE);
+        operateView.setItemVisibility(ControlOperateType.WHITE_BOARD.getValue(), View.GONE);
+        operateView.setItemVisibility(ControlOperateType.RES_LIBRARY.getValue(), View.GONE);
+        operateView.setItemVisibility(ControlOperateType.MEMBER_LIST.getValue(), View.GONE);
         setButtonEnableStatus(buttonEnableStatus);
         setCheckedButton(currentCheckedButton);
 

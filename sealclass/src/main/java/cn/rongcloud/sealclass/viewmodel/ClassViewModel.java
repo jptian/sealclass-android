@@ -51,8 +51,8 @@ import cn.rongcloud.sealclass.repository.ClassRepository;
 import cn.rongcloud.sealclass.repository.OnClassEventListener;
 import cn.rongcloud.sealclass.repository.OnClassVideoEventListener;
 import cn.rongcloud.sealclass.rtc.RtcManager;
-import cn.rongcloud.sealclass.ui.view.RadioRtcVideoView;
 import cn.rongcloud.sealclass.utils.log.SLog;
+import io.rong.imlib.RongIMClient;
 
 /**
  * 课堂视图模型
@@ -82,12 +82,15 @@ public class ClassViewModel extends ViewModel {
     private MutableLiveData<StreamResource> addVideoUser = new MutableLiveData<>();         // 有新人发布视频
     private MutableLiveData<StreamResource> removeVideoUser = new MutableLiveData<>();      // 退出视频发布
     private MutableLiveData<ClassMember> kickedoff = new MutableLiveData<>();    // 退出视频发布
+    private MutableLiveData<ClassMember> roomDestory = new MutableLiveData<>();    // 房间被销毁
     private MutableLiveData<Integer> unReadMessage = new MutableLiveData<>();   // 未读消息
     private MutableLiveData<ClassMember> roleChangeUser = new MutableLiveData<>();   // 默认身份改变
     private MutableLiveData<Boolean> localUserStartVideoChat = new MutableLiveData<>();   //开始音视频
     private MutableLiveData<DeviceChange> deviceChange = new MutableLiveData<>();   //开始音视频
     private MutableLiveData<Boolean> respondApplySpeechTimeout = new MutableLiveData<>();   // 相应申请发言超时
     private MutableLiveData<FirstFrameUserInfo> fisrtFrameDraw = new MutableLiveData<>();   // 相应申请发言超时
+
+    private MutableLiveData<String> newDeviceMessage = new MutableLiveData<>();       // web端登录了该账号
 
     private MutableLiveData<Calendar> passedTime = new MutableLiveData<>();     // 经过的时间
     private Timer countPassTimeTimer = new Timer();
@@ -310,6 +313,11 @@ public class ClassViewModel extends ViewModel {
     }
 
 
+    public LiveData<ClassMember> getRoomDestroy(){
+        return roomDestory;
+    }
+
+
     /**
      * 角色变化
      * @return
@@ -398,19 +406,20 @@ public class ClassViewModel extends ViewModel {
             @Override
             public List<ClassMember> apply(List<ClassMember> input) {
 
-                if (input == null || input.size() <= 0) {
-                    return null;
-                }
-
-                ArrayList<ClassMember> members = new ArrayList<>();
-                for (ClassMember member : input) {
-                    if (member.getRole() == Role.ASSISTANT) {
-                        members.add(0, member);
-                    } else if (member.getRole() == Role.LECTURER) {
-                        members.add( member);
-                    }
-                }
-                return members;
+//                可能存在多个教员和讲师 不排序
+//                if (input == null || input.size() <= 0) {
+//                    return null;
+//                }
+//
+//                ArrayList<ClassMember> members = new ArrayList<>();
+//                for (ClassMember member : input) {
+//                    if (member.getRole() == Role.ASSISTANT) {
+//                        members.add(0, member);
+//                    } else if (member.getRole() == Role.LECTURER) {
+//                        members.add( member);
+//                    }
+//                }
+                return input;
             }
         });
     }
@@ -458,10 +467,10 @@ public class ClassViewModel extends ViewModel {
      * @param roomId
      * @return
      */
-    public LiveData<RequestState> leaveRoom(String roomId) {
+    public LiveData<RequestState> leaveRoom(String roomId,String schoolId) {
         final StateLiveData stateLiveData = new StateLiveData();
         stateLiveData.loading();
-        classRepository.leave(roomId, new ResultCallback<Boolean>() {
+        classRepository.leave(roomId,schoolId, new ResultCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean result) {
                 stateLiveData.success();
@@ -1057,6 +1066,10 @@ public class ClassViewModel extends ViewModel {
     }
 
 
+    public MutableLiveData<String> getNewDeviceMessage() {
+        return newDeviceMessage;
+    }
+
     /**
      * 课堂事件监听
      * 通过注册监听，更新当前房间内的信息
@@ -1075,7 +1088,9 @@ public class ClassViewModel extends ViewModel {
                 case KICK:
                     kickedoff.postValue(classMember);
                     removeClassMember(classMember);
-
+                    break;
+                case DESTROY:
+                    roomDestory.postValue(classMember);
                     break;
             }
         }
@@ -1228,6 +1243,11 @@ public class ClassViewModel extends ViewModel {
         @Override
         public void onExistUnReadMessage(int count) {
             unReadMessage.postValue(count);
+        }
+
+        @Override
+        public void onNewDeviceMessage(String deviceId) {
+            newDeviceMessage.postValue(deviceId);
         }
     };
 
@@ -1673,9 +1693,34 @@ public class ClassViewModel extends ViewModel {
         RtcManager.getInstance().setLocalMicEnable(enable);
     }
 
+    public boolean isMuteVideo(){
+        return RtcManager.getInstance().isMuteVideo();
+    }
+    public boolean isInRoom(){
+        return RtcManager.getInstance().isInRoom();
+    }
+
+    public void startCapture(){
+        RtcManager.getInstance().startCapture();
+    }
+
     public void switchCamera() {
         RtcManager.getInstance().switchCamera();
 
+    }
+
+    /**
+     * 订阅大流
+     */
+    public void exchangeStreamToNormalStream(String userid){
+        RtcManager.getInstance().exchangeStreamToNormalStream(userid);
+    }
+
+    /**
+     * 订阅小流
+     */
+    public void exchangeStreamToTinyStream(String userid){
+        RtcManager.getInstance().exchangeStreamToTinyStream(userid);
     }
 
     public void setEnableSpeakerphone(boolean enable) {
@@ -1721,7 +1766,7 @@ public class ClassViewModel extends ViewModel {
     public LiveData<RequestState> subscribeResource(String userId, RongRTCVideoView videoView) {
         final StateLiveData stateLiveData = new StateLiveData();
         stateLiveData.loading();
-        classRepository.subscribeResource(userId, videoView, new ResultCallback<String>() {
+        classRepository.subscribeResource(userId, videoView, getMembership(userId),new ResultCallback<String>() {
             @Override
             public void onSuccess(String b) {
                 stateLiveData.success();
@@ -1737,10 +1782,27 @@ public class ClassViewModel extends ViewModel {
         return stateLiveData;
     }
 
+    private int getMembership(String userId) {
+        List<ClassMember> memberList = getMemberList().getValue();
+        int role = 20;
+        if (memberList != null) {
+            for (ClassMember member : memberList) {
+                if (member != null && member.getUserId().equals(userId)) {
+                    if (null != member.getRole()) {
+                        role = member.getRole().getValue();
+                    }
+                    break;
+                }
+            }
+        }
+        SLog.d(SLog.TAG_RTC, "getMembership->userId :" + userId + " , Role :" + role);
+        return role;
+    }
+
     public LiveData<RequestState> subscribeResource(String userId, RongRTCVideoView videoView, RongRTCVideoView screenShareVideo) {
         final StateLiveData stateLiveData = new StateLiveData();
         stateLiveData.loading();
-        classRepository.subscribeResource(userId, videoView, screenShareVideo, new ResultCallback<String>() {
+        classRepository.subscribeResource(userId, videoView, screenShareVideo, getMembership(userId),new ResultCallback<String>() {
             @Override
             public void onSuccess(String b) {
                 stateLiveData.success();
@@ -1903,8 +1965,16 @@ public class ClassViewModel extends ViewModel {
         }
 
         @Override
-        public void onRemoveVideoUser(StreamResource resource) {
+        public void onUserLeft(StreamResource resource) {
             removeVideoUser.postValue(resource);
+        }
+
+        @Override
+        public void onUserOffline(StreamResource info) {
+            //用户在rtc离线 仅仅构造userid
+            ClassMember classMember = new ClassMember();
+            classMember.setUserId(info.userId);
+            removeClassMember(classMember);
         }
 
         @Override
@@ -1954,5 +2024,13 @@ public class ClassViewModel extends ViewModel {
     protected void onCleared() {
         classRepository.removeOnClassEventListener(onClassEventListener);
         countPassTimeTimer.cancel();
+    }
+
+    /**
+     * 设置连接状态变化的监听器。
+     * @param listener
+     */
+    public void setConnectionStatusListener(RongIMClient.ConnectionStatusListener listener) {
+        IMManager.getInstance().setConnectionStatusListener(listener);
     }
 }

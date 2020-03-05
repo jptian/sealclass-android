@@ -3,10 +3,9 @@ package cn.rongcloud.sealclass.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
+import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
-import androidx.lifecycle.Observer;
 
 public abstract class ExtendBaseActivity extends BaseActivity implements View.OnClickListener{
 
@@ -55,5 +54,13 @@ public abstract class ExtendBaseActivity extends BaseActivity implements View.On
 
     protected void onClick(View v, int id) {
 
+    }
+
+    protected void addFlags(){
+        //| WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+        getWindow().addFlags(
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                        | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
     }
 }

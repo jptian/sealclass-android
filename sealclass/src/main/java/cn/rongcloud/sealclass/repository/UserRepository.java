@@ -2,17 +2,21 @@ package cn.rongcloud.sealclass.repository;
 
 import android.content.Context;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import java.util.HashMap;
 
 import cn.rongcloud.sealclass.api.SealClassApi;
 import cn.rongcloud.sealclass.api.retrofit.CallBackWrapper;
 import cn.rongcloud.sealclass.api.retrofit.RetrofitUtil;
+import cn.rongcloud.sealclass.common.ErrorCode;
 import cn.rongcloud.sealclass.common.ResultCallback;
 import cn.rongcloud.sealclass.im.IMManager;
 import cn.rongcloud.sealclass.model.LoginResult;
 import cn.rongcloud.sealclass.model.UserInfo;
 import cn.rongcloud.sealclass.rtc.RtcManager;
+import cn.rongcloud.sealclass.rtc.VideoResolution;
+import cn.rongcloud.sealclass.utils.Utils;
 import cn.rongcloud.sealclass.utils.log.SLog;
 
 /**
@@ -28,15 +32,24 @@ public class UserRepository extends BaseRepository {
         sealClassService = getService(SealClassApi.class);
     }
 
-    public void login(String roomId, boolean isListener, String userName, final ResultCallback<LoginResult> callBack) {
+    public void login(final String roomId, final boolean isListener, final String userPhone, final String schoolId, final String password, final int role, final int selectedResolutionId, final ResultCallback<LoginResult> callBack) {
         HashMap<String, Object> bodyMap = new HashMap<>();
         bodyMap.put("roomId", roomId);
         bodyMap.put("audience", String.valueOf(isListener));
-        bodyMap.put("userName", userName);
+        bodyMap.put("phone", userPhone);
+
+        bodyMap.put("disableCamera", String.valueOf(false));
+        bodyMap.put("role", role);
+        bodyMap.put("schoolId", schoolId);
+        bodyMap.put("password", password);
+        bodyMap.put("deviceId", Utils.getDeviceId());
 
         sealClassService.login(RetrofitUtil.createJsonRequest(bodyMap)).enqueue(new CallBackWrapper<>(new ResultCallback<LoginResult>() {
             @Override
             public void onSuccess(final LoginResult result) {
+                if (result != null && !TextUtils.isEmpty(result.getAppkey())) {
+                    IMManager.init(Utils.getContext(), result.getAppkey());
+                }
                 // 设置 http请求 的用户认证
                 String authorization = result.getAuthorization();
                 getHttpManager().setAuthHeader(authorization);
@@ -45,7 +58,7 @@ public class UserRepository extends BaseRepository {
                 imManager.login(result.getImToken(), new ResultCallback<String>() {
                     @Override
                     public void onSuccess(String s) {
-
+                        RtcManager.getInstance().setVideoResolution(VideoResolution.getById(selectedResolutionId));
                         // 进入音视频房间
                         RtcManager.getInstance().joinRtcRoom(result.getRoomId(), new ResultCallback<String>() {
                             @Override
@@ -64,6 +77,9 @@ public class UserRepository extends BaseRepository {
                             @Override
                             public void onFail(int errorCode) {
                                 SLog.d("class_rtc", "joinroom =>" + errorCode);
+                                if (callBack != null) {
+                                    callBack.onFail(errorCode);
+                                }
                             }
                         });
 
@@ -71,12 +87,9 @@ public class UserRepository extends BaseRepository {
 
                     @Override
                     public void onFail(int errorCode) {
-                        callBack.onFail(errorCode);
+                        callBack.onFail(ErrorCode.IM_ERROR.getCode());
                     }
                 });
-
-
-
             }
 
             @Override
@@ -85,5 +98,4 @@ public class UserRepository extends BaseRepository {
             }
         }));
     }
-
 }

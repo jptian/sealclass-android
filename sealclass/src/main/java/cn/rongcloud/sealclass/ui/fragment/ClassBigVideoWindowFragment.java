@@ -144,6 +144,8 @@ public class ClassBigVideoWindowFragment extends BaseFragment {
     public void show(ClassMember member) {
         RadioRtcVideoView videoView = VideoViewManager.getInstance().get(member.getUserId());
 
+        classViewModel.exchangeStreamToNormalStream(member.getUserId());
+
         // 当有新的用户显示，要移除旧用户的， 并要通知视频列表刷新
         if (videoViewItem.getChildCount() > 0 && !videoViewItem.hasVideoView(videoView)) {
             videoViewItem.removeVideoView();

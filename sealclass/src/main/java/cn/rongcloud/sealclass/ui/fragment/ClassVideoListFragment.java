@@ -36,7 +36,7 @@ import cn.rongcloud.sealclass.viewmodel.ClassViewModel;
 /**
  * 视频列表界面
  */
-public class ClassVideoListFragment extends BaseFragment implements AdapterView.OnItemClickListener {
+public class ClassVideoListFragment extends BaseFragment {
 
     private static final String TAG_VIDEO_VIEW = "video_view";
 
@@ -63,7 +63,6 @@ public class ClassVideoListFragment extends BaseFragment implements AdapterView.
             }
         });
         videoList.setAdapter(classVideoListAdapter);
-        videoList.setOnItemClickListener(this);
     }
 
     //清除当前listview 中的所有信息缓存以及 VideoView。
@@ -99,6 +98,11 @@ public class ClassVideoListFragment extends BaseFragment implements AdapterView.
 
     // 视频列表布局刷新，此方法用于VideoView 的填充到 list 中的操作。
     private synchronized void updateVideoItem(final ClassVideoListItem view, final ClassMember oldMember, final ClassMember newMember) {
+        if (view != null) {
+            if (view.getVideoViewCount() > 0) {
+                view.removeVideoView();
+            }
+        }
         // 当前 View 中的前一个持有的数据
         if (oldMember != null) {
             String oldUserId = oldMember.getUserId();
@@ -329,6 +333,9 @@ public class ClassVideoListFragment extends BaseFragment implements AdapterView.
                         if (!videoView.isBindVideo()) {
                             videoView.setBindVideo(true); // 标记已经绑定了流
                             subscribe(userId, videoView);
+                        } else {
+                            videoView.setBindVideo(true); // 标记已经绑定了流
+                            subscribe(userId, videoView);
                         }
                     } else if (resource.isHasScreen) {
                         RadioRtcVideoView shareScreenRtcVideoView = VideoViewManager.getInstance().getShareScreenVideoView();
@@ -396,7 +403,7 @@ public class ClassVideoListFragment extends BaseFragment implements AdapterView.
             @Override
             public void onChanged(DeviceChange deviceChange) {
                 RadioRtcVideoView videoView = VideoViewManager.getInstance().get(deviceChange.userId);
-                if (deviceChange.deviceType == DeviceType.Camera) {
+                if (videoView != null && deviceChange.deviceType == DeviceType.Camera) {
                     if (!deviceChange.isEnable) {
                         // 清了最后一帧
                         videoView.setAllowRenderer(false);
@@ -543,24 +550,6 @@ public class ClassVideoListFragment extends BaseFragment implements AdapterView.
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(width, height);
         return params;
 
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Object item = videoList.getAdapter().getItem(position);
-        if (item != null && item instanceof ClassMember) {
-            ClassMember member = (ClassMember) item;
-            ClassVideoListItem videoViewItem = (ClassVideoListItem) view;
-            RadioRtcVideoView videoView = VideoViewManager.getInstance().get(member.getUserId());
-            boolean has = videoViewItem.hasVideoView(videoView);
-            if (has) {
-                videoViewItem.setContentVisibility(View.GONE);
-                if (listener != null) {
-                    listener.onItemClick(member);
-                }
-            }
-
-        }
     }
 
     /**

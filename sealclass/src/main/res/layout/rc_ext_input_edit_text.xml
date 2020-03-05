@@ -10,10 +10,11 @@
     <ImageView
         android:id="@+id/rc_emoticon_toggle"
         android:layout_width="25dp"
-        android:layout_height="25dp"
+        android:layout_height="16dp"
+        android:visibility="gone"
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="8dp"
-        android:src="@drawable/rc_emotion_toggle_selector"/>
+        android:src="@drawable/rc_emotion_toggle_selector" />
 
     <RelativeLayout
         android:layout_width="0dp"

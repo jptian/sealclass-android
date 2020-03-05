@@ -10,7 +10,9 @@ public interface OnClassVideoEventListener {
 
     void onAddVideoUser(StreamResource userId);
 
-    void onRemoveVideoUser(StreamResource info);
+    void onUserLeft(StreamResource info);
+
+    void onUserOffline(StreamResource info);
 
     void onFirstFrameDraw(String userId, String tag);
 

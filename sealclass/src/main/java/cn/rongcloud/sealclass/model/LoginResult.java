@@ -11,6 +11,7 @@ public class LoginResult implements Serializable {
     private UserInfo userInfo;
     private List<ClassMember> members;
     private List<WhiteBoard> whiteboards;
+    private String appkey;
 
     public String getAuthorization() {
         return authorization;
@@ -66,5 +67,13 @@ public class LoginResult implements Serializable {
 
     public void setWhiteboards(List<WhiteBoard> whiteboards) {
         this.whiteboards = whiteboards;
+    }
+
+    public String getAppkey() {
+        return appkey;
+    }
+
+    public void setAppkey(String appkey) {
+        this.appkey = appkey;
     }
 }

@@ -13,6 +13,7 @@ import cn.rongcloud.sealclass.im.message.ControlDeviceNotifyMessage;
 import cn.rongcloud.sealclass.im.message.DeviceStateChangedMessage;
 import cn.rongcloud.sealclass.im.message.DisplayMessage;
 import cn.rongcloud.sealclass.im.message.MemberChangedMessage;
+import cn.rongcloud.sealclass.im.message.NewDeviceMessage;
 import cn.rongcloud.sealclass.im.message.RoleChangedMessage;
 import cn.rongcloud.sealclass.im.message.RoleSingleChangedMessage;
 import cn.rongcloud.sealclass.im.message.SpeechResultMessage;
@@ -26,6 +27,7 @@ import cn.rongcloud.sealclass.im.provider.ClassMemberChangedNotificationProvider
 import cn.rongcloud.sealclass.im.provider.ClassTextMessageItemProvider;
 import cn.rongcloud.sealclass.im.provider.RoleChangedMessageItemProvider;
 import cn.rongcloud.sealclass.model.RoleChangedUser;
+import cn.rongcloud.sealclass.utils.Utils;
 import cn.rongcloud.sealclass.utils.log.SLog;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.manager.IUnReadMessageObserver;
@@ -62,13 +64,15 @@ public class IMManager {
      *
      * @param context
      */
-    public static void init(Context context) {
+    public static void init(Context context,String appkey) {
         final IMManager imManager = getInstance();
         /*
          * 初始化 SDK，在整个应用程序全局，只需要调用一次。建议在 Application 继承类中调用。
          */
+
+        RongIMClient.getInstance().switchAppKey(appkey);
         // 可在初始 SDK 时直接带入融云 IM 申请的APP KEY
-        RongIM.init(context, 这里请替换为您的融云 AppKey, false);
+        RongIM.init(context, appkey, false);
 
         // 注册自定义消息
         RongIM.registerMessageType(ApplyForSpeechMessage.class);
@@ -84,6 +88,7 @@ public class IMManager {
         RongIM.registerMessageType(UpgradeRoleMessage.class);
         RongIM.registerMessageType(WhiteBoardMessage.class);
         RongIM.registerMessageType(RoleSingleChangedMessage.class);
+        RongIM.registerMessageType(NewDeviceMessage.class);
 
         // 设置在发送消息时添加用户信息
         RongIM.getInstance().setMessageAttachedUserInfo(true);
@@ -148,7 +153,11 @@ public class IMManager {
             @Override
             public void onError(RongIMClient.ErrorCode errorCode) {
                 SLog.e(SLog.TAG_IM, "IM connect error - code:" + errorCode.getValue() + " ,message:" + errorCode.getMessage());
-                callBack.onFail(ErrorCode.IM_ERROR.getCode());
+                if (errorCode == RongIMClient.ErrorCode.RC_CONN_REDIRECTED) {
+                    login(token, callBack);
+                } else {
+                    callBack.onFail(errorCode.getValue());
+                }
             }
         });
     }
@@ -216,4 +225,11 @@ public class IMManager {
         }
     }
 
+    /**
+     * 设置连接状态变化的监听器。
+     * @param listener
+     */
+    public void setConnectionStatusListener(RongIMClient.ConnectionStatusListener listener){
+        RongIMClient.setConnectionStatusListener(listener);
+    }
 }
