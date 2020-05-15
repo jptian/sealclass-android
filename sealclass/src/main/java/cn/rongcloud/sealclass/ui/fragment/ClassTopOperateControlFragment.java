@@ -258,6 +258,7 @@ public class ClassTopOperateControlFragment extends BaseFragment {
                 if (connectionStatus == ConnectionStatus.KICKED_OFFLINE_BY_OTHER_CLIENT) {
                     showExitDialog(getString(R.string.kicked_offline_by_other_client),1);
                 }
+                classViewModel.updateConnectionStatus(connectionStatus);
             }
         });
 

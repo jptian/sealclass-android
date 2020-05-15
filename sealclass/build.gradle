@@ -6,8 +6,8 @@ android {
         applicationId "cn.rongcloud.sealclass"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 20021918
-        versionName "2.0.0"
+        versionCode 20051420
+        versionName "2.1.0"
         ndk {
             abiFilters "armeabi-v7a"
         }
@@ -37,11 +37,13 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata:2.1.0-alpha04'
     implementation 'androidx.lifecycle:lifecycle-viewmodel:2.1.0-alpha04'
 
-    api 'cn.rongcloud.sdk:im_kit:2.10.3'
+    api 'cn.rongcloud.sdk:im_kit:2.10.6'
     //im_kit必须依赖im_lib，所以需要加入对应依赖
-    api 'cn.rongcloud.sdk:im_lib:2.10.3'
+    api 'cn.rongcloud.sdk:im_lib:2.10.6'
 
-    compile 'cn.rongcloud.rtclib:rtc_lib:3.1.7'
+    implementation 'cn.rongcloud.rtclib:rtc_lib:3.2.2'
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
+
+    implementation 'com.github.duty-os:white-sdk-android:2.7.7'
 }

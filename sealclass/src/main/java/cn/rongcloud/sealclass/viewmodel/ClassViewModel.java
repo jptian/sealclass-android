@@ -3,6 +3,7 @@ package cn.rongcloud.sealclass.viewmodel;
 import android.app.Application;
 import android.os.CountDownTimer;
 import android.text.TextUtils;
+import android.view.Display;
 
 import androidx.annotation.NonNull;
 import androidx.arch.core.util.Function;
@@ -12,6 +13,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import io.rong.imlib.RongIMClient.ConnectionStatusListener.ConnectionStatus;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -89,6 +91,7 @@ public class ClassViewModel extends ViewModel {
     private MutableLiveData<DeviceChange> deviceChange = new MutableLiveData<>();   //开始音视频
     private MutableLiveData<Boolean> respondApplySpeechTimeout = new MutableLiveData<>();   // 相应申请发言超时
     private MutableLiveData<FirstFrameUserInfo> fisrtFrameDraw = new MutableLiveData<>();   // 相应申请发言超时
+    private MutableLiveData<ConnectionStatus> connectionStatusLveData = new MutableLiveData<>();   //保存IM连接状态，用于更新白板断开后的回复
 
     private MutableLiveData<String> newDeviceMessage = new MutableLiveData<>();       // web端登录了该账号
 
@@ -2032,5 +2035,13 @@ public class ClassViewModel extends ViewModel {
      */
     public void setConnectionStatusListener(RongIMClient.ConnectionStatusListener listener) {
         IMManager.getInstance().setConnectionStatusListener(listener);
+    }
+
+    public MutableLiveData<ConnectionStatus> getConnectionStatusLiveData() {
+        return connectionStatusLveData;
+    }
+
+    public void updateConnectionStatus(ConnectionStatus connectionStatus) {
+        connectionStatusLveData.setValue(connectionStatus);
     }
 }

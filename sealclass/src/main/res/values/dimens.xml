@@ -86,4 +86,6 @@
     <dimen name="class_big_view_window_show_margin">10dp</dimen>
     <dimen name="class_tv_time_width">100dp</dimen>
     <dimen name="class_tv_time_height">20dp</dimen>
+
+    <dimen name="popup_window_xoff">45dp</dimen>
 </resources>

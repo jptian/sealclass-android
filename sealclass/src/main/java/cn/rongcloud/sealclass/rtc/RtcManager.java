@@ -1,6 +1,10 @@
 package cn.rongcloud.sealclass.rtc;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +38,7 @@ import io.rong.imlib.model.Message;
  * Rong RTC 语音业务封装
  */
 public class RtcManager {
+    private static final String TAG = RtcManager.class.getSimpleName();
     private static RtcManager instance;
     private RongRTCRoom rongRTCRoom;
     private RtcCallback rtcCallback;
@@ -86,7 +91,7 @@ public class RtcManager {
 
             @Override
             protected void onUiFailed(RTCErrorCode rtcErrorCode) {
-                SLog.e(SLog.TAG_RTC, "joinRtcRoom failed - " + rtcErrorCode.gerReason());
+                SLog.e(SLog.TAG_RTC, "joinRtcRoom failed - " + rtcErrorCode.getReason());
                 if (callback != null) {
                     callback.onFail(ErrorCode.RTC_ERROR.getCode());
                 }
@@ -117,7 +122,7 @@ public class RtcManager {
 
             @Override
             public void onUiFailed(RTCErrorCode rtcErrorCode) {
-                SLog.e(SLog.TAG_RTC, "quitRtcRoom error - " + rtcErrorCode.gerReason());
+                SLog.e(SLog.TAG_RTC, "quitRtcRoom error - " + rtcErrorCode.getReason());
 
                 if (callback != null) {
                     callback.onFail(ErrorCode.RTC_ERROR.getCode());
@@ -162,7 +167,7 @@ public class RtcManager {
 
             @Override
             public void onUiFailed(RTCErrorCode rtcErrorCode) {
-                SLog.e(SLog.TAG_RTC, "startVoiceChat error - " + rtcErrorCode.gerReason());
+                SLog.e(SLog.TAG_RTC, "startVoiceChat error - " + rtcErrorCode.getReason());
 
                 if (callback != null) {
                     callback.onFail(ErrorCode.RTC_ERROR.getCode());
@@ -200,7 +205,7 @@ public class RtcManager {
 
             @Override
             public void onUiFailed(RTCErrorCode rtcErrorCode) {
-                SLog.e(SLog.TAG_RTC, "stopVoiceChat error - " + rtcErrorCode.gerReason());
+                SLog.e(SLog.TAG_RTC, "stopVoiceChat error - " + rtcErrorCode.getReason());
                 if (callback != null) {
                     callback.onFail(ErrorCode.RTC_ERROR.getCode());
                 }
@@ -285,7 +290,7 @@ public class RtcManager {
 
                     @Override
                     public void onUiFailed(RTCErrorCode rtcErrorCode) {
-                        SLog.e(SLog.TAG_RTC, "muteRoomVoice error - " + rtcErrorCode.gerReason());
+                        SLog.e(SLog.TAG_RTC, "muteRoomVoice error - " + rtcErrorCode.getReason());
                         if (rtcCallback != null) {
                             rtcCallback.onFail(rtcErrorCode);
                         }
@@ -302,7 +307,7 @@ public class RtcManager {
 
                     @Override
                     public void onUiFailed(RTCErrorCode rtcErrorCode) {
-                        SLog.e(SLog.TAG_RTC, "muteRoomVoice error - " + rtcErrorCode.gerReason());
+                        SLog.e(SLog.TAG_RTC, "muteRoomVoice error - " + rtcErrorCode.getReason());
                         if (rtcCallback != null) {
                             rtcCallback.onFail(rtcErrorCode);
                         }
@@ -397,7 +402,7 @@ public class RtcManager {
 
             @Override
             public void onUiFailed(RTCErrorCode rtcErrorCode) {
-                SLog.e(SLog.TAG_RTC, "subscribeAvStream error - " + rtcErrorCode.gerReason());
+                SLog.e(SLog.TAG_RTC, "subscribeAvStream error - " + rtcErrorCode.getReason());
 
                 if (callback != null) {
                     callback.onFail(ErrorCode.RTC_ERROR.getCode());
@@ -427,7 +432,7 @@ public class RtcManager {
 
             @Override
             public void onUiFailed(RTCErrorCode rtcErrorCode) {
-                SLog.e(SLog.TAG_RTC, "unSubscribeAvStream error - " + rtcErrorCode.gerReason());
+                SLog.e(SLog.TAG_RTC, "unSubscribeAvStream error - " + rtcErrorCode.getReason());
 
                 if (callback != null) {
                     callback.onFail(ErrorCode.RTC_ERROR.getCode());
@@ -529,7 +534,7 @@ public class RtcManager {
 
             @Override
             public void onUiFailed(RTCErrorCode rtcErrorCode) {
-                SLog.e(SLog.TAG_RTC, "subscribeStream " + type + " error - " + rtcErrorCode.gerReason());
+                SLog.e(SLog.TAG_RTC, "subscribeStream " + type + " error - " + rtcErrorCode.getReason());
 
                 if (callback != null) {
                     callback.onFail(ErrorCode.RTC_ERROR.getCode());
@@ -588,7 +593,7 @@ public class RtcManager {
 
             @Override
             public void onUiFailed(RTCErrorCode rtcErrorCode) {
-                SLog.e(SLog.TAG_RTC, "unSubscribeStream  " + type + " error - " + rtcErrorCode.gerReason());
+                SLog.e(SLog.TAG_RTC, "unSubscribeStream  " + type + " error - " + rtcErrorCode.getReason());
 
                 if (callback != null) {
                     callback.onFail(ErrorCode.RTC_ERROR.getCode());
@@ -815,6 +820,11 @@ public class RtcManager {
         public void onReceiveMessage(Message message) {
 
         }
+
+        @Override
+        public void onKickedByServer() {
+
+        }
     };
 
     public void setVideoResolution(VideoResolution resolution) {
@@ -823,7 +833,6 @@ public class RtcManager {
                 .build();
         RongRTCCapture.getInstance().setRTCConfig(config);
     }
-
 
     public interface RtcCallback {
 

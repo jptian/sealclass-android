@@ -41,6 +41,7 @@ import cn.rongcloud.sealclass.model.SpeechResult;
 import cn.rongcloud.sealclass.model.TicketExpired;
 import cn.rongcloud.sealclass.model.UpgradeRoleInvite;
 import cn.rongcloud.sealclass.model.UserInfo;
+import cn.rongcloud.sealclass.rtc.RtcManager;
 import cn.rongcloud.sealclass.ui.dialog.ApplySpeechRequestDialog;
 import cn.rongcloud.sealclass.ui.dialog.CommonDialog;
 import cn.rongcloud.sealclass.ui.dialog.DowngradeListDialog;
@@ -56,6 +57,7 @@ import io.rong.imlib.model.Conversation;
 
 
 public class ClassActivity extends ExtendBaseActivity implements ToastBySelfComponent {
+    private static final String TAG = ClassActivity.class.getSimpleName();
     public static final String EXTRA_LOGIN_RESULT = "extra_login_result";
     public static final String EXTRA_CLOSE_CAMERA = "extra_open_camera";
 
@@ -81,6 +83,7 @@ public class ClassActivity extends ExtendBaseActivity implements ToastBySelfComp
     private ClassBigVideoWindowFragment videoBigWidowFragment;
 
     private View parentView;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -750,7 +753,6 @@ public class ClassActivity extends ExtendBaseActivity implements ToastBySelfComp
     private void createDisplayWhiteBoard() {
         classViewModel.createWhiteBoard(getRoomId()).observe(this, new ShowToastObserver(this));
     }
-
 
 //    private void showBigVideoWindowDialog(ClassMember member) {
 //        BigVideoWindowDialog.Builder builder = new BigVideoWindowDialog.Builder();
