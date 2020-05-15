@@ -1,13 +1,17 @@
 package cn.rongcloud.sealclass.ui.fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.SslErrorHandler;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -16,6 +20,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
@@ -25,6 +30,27 @@ import androidx.annotation.RequiresApi;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import cn.rongcloud.sealclass.whiteboard.WhiteBoardConsant;
+import com.herewhite.sdk.AbstractRoomCallbacks;
+import com.herewhite.sdk.Room;
+import com.herewhite.sdk.RoomParams;
+import com.herewhite.sdk.WhiteSdk;
+import com.herewhite.sdk.WhiteSdkConfiguration;
+import com.herewhite.sdk.WhiteboardView;
+import com.herewhite.sdk.domain.Appliance;
+import com.herewhite.sdk.domain.MemberState;
+import com.herewhite.sdk.domain.PptPage;
+import com.herewhite.sdk.domain.Promise;
+import com.herewhite.sdk.domain.RoomPhase;
+import com.herewhite.sdk.domain.RoomState;
+import com.herewhite.sdk.domain.SDKError;
+import com.herewhite.sdk.domain.Scene;
+import com.herewhite.sdk.domain.SceneState;
+import com.herewhite.sdk.domain.UrlInterrupter;
+
+import com.herewhite.sdk.domain.ViewMode;
+import io.rong.imlib.RongIMClient.ConnectionStatusListener.ConnectionStatus;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +70,8 @@ import cn.rongcloud.sealclass.ui.view.DisplayNullView;
 import cn.rongcloud.sealclass.ui.view.RadioRtcVideoView;
 import cn.rongcloud.sealclass.utils.log.SLog;
 import cn.rongcloud.sealclass.viewmodel.ClassViewModel;
+import cn.rongcloud.sealclass.whiteboard.PencilColorPopupWindow;
+import io.rong.imlib.RongIMClient;
 
 /**
  * 共享区域的界面
@@ -53,7 +81,7 @@ public class ClassShareScreenFragment extends BaseFragment {
     public final static String ARGUMENT_BOOLEAN_IS_FULL_SCREEN = "is_full_screen";
     private final static int REQUEST_WHITE_BOARD_UPLOAD_FILE = 1001;
 
-    private WebView mWebView;
+    private WhiteboardView mWebView;
     private View mWebViewContianer;
     private ClassVideoListItem shareVideoView;
     private ClassVideoListItem shareScreenVideoView;
@@ -66,6 +94,18 @@ public class ClassShareScreenFragment extends BaseFragment {
     private boolean isFullScreen = false;
     private ValueCallback<Uri[]> webUploadCallback;
     private View mWebViewLoading;
+
+    //白板相关功能,集成第三方 herewhite(http://www.herewhite.com/) 白板
+    private View whiteBoardAction;
+    private PencilColorPopupWindow pencilColorPopupWindow;
+    private Scene[] whiteBoardScenes;
+    private String currentSceneName;
+    private int currentSceneIndex;
+    private Room whiteBoardRoom;
+    private Button whiteBoardPagesPrevious;
+    private Button whiteBoardPagesNext;
+    private String uuid;
+    private RoomPhase roomPhase;
 
     @Override
     protected int getLayoutResId() {
@@ -87,6 +127,9 @@ public class ClassShareScreenFragment extends BaseFragment {
         mWebView = findView(R.id.class_whiteboard_display);
         mWebViewContianer = findView(R.id.class_contianer_whiteboard_display);
         mWebViewLoading = findView(R.id.class_whiteboard_loading);
+        whiteBoardAction = findView(R.id.white_board_action);
+        whiteBoardPagesPrevious = findView(R.id.white_board_pages_previous);
+        whiteBoardPagesNext =  findView(R.id.white_board_pages_next);
         // 视频
         shareVideoView = findView(R.id.class_share_videoview);
         // 桌面共享
@@ -121,7 +164,7 @@ public class ClassShareScreenFragment extends BaseFragment {
         shareVideoView.clear();
         shareScreenVideoView.clear();
 
-        initWebView();
+        //initWebView();
 
     }
 
@@ -280,15 +323,26 @@ public class ClassShareScreenFragment extends BaseFragment {
                     }
                     shareVideoView.setVisibility(View.GONE);
                     mWebView.setVisibility(View.VISIBLE);
+                    mWebView.requestFocus();
                     mWebViewContianer.setVisibility(View.VISIBLE);
+                    whiteBoardAction.setVisibility(View.VISIBLE);
+                    whiteBoardPagesPrevious.setVisibility(View.VISIBLE);
+                    whiteBoardPagesNext.setVisibility(View.VISIBLE);
                     displayNull.setVisibility(View.GONE);
                     shareScreenVideoView.setVisibility(View.GONE);
-                    loadWhiteBoard(screenDisplay);
+                    mWebViewLoading.setVisibility(View.VISIBLE);
+                    joinWhiteBoardRoom(screenDisplay);
                 } else if (type == ScreenDisplay.Display.LECTURER || type == ScreenDisplay.Display.ASSISTANT) {
                     //根据userId，切换到对应的视频
                     shareVideoView.setVisibility(View.VISIBLE);
                     mWebView.setVisibility(View.GONE);
                     mWebViewContianer.setVisibility(View.GONE);
+                    whiteBoardAction.setVisibility(View.GONE);
+                    mWebViewLoading.setVisibility(View.GONE);
+                    hideInputKeyboard();
+                    roomPhase = null;
+                    whiteBoardPagesPrevious.setVisibility(View.GONE);
+                    whiteBoardPagesNext.setVisibility(View.GONE);
                     displayNull.setVisibility(View.GONE);
                     shareScreenVideoView.setVisibility(View.GONE);
 
@@ -323,6 +377,12 @@ public class ClassShareScreenFragment extends BaseFragment {
                     shareVideoView.setVisibility(View.GONE);
                     mWebView.setVisibility(View.GONE);
                     mWebViewContianer.setVisibility(View.GONE);
+                    mWebViewLoading.setVisibility(View.GONE);
+                    hideInputKeyboard();
+                    roomPhase = null;
+                    whiteBoardAction.setVisibility(View.GONE);
+                    whiteBoardPagesPrevious.setVisibility(View.GONE);
+                    whiteBoardPagesNext.setVisibility(View.GONE);
                     displayNull.setVisibility(View.GONE);
                     shareScreenVideoView.setData(screenDisplay.getClassMember());
                     shareScreenVideoView.setVisibility(View.VISIBLE);
@@ -366,8 +426,14 @@ public class ClassShareScreenFragment extends BaseFragment {
                     shareVideoView.removeVideoView();
                     shareScreenVideoView.setData(null);
                     shareScreenVideoView.setVisibility(View.GONE);
+                    hideInputKeyboard();
+                    roomPhase = null;
+                    mWebViewLoading.setVisibility(View.GONE);
                     mWebView.setVisibility(View.GONE);
                     mWebViewContianer.setVisibility(View.GONE);
+                    whiteBoardAction.setVisibility(View.GONE);
+                    whiteBoardPagesPrevious.setVisibility(View.GONE);
+                    whiteBoardPagesNext.setVisibility(View.GONE);
                     displayNull.setVisibility(View.VISIBLE);
                     displayNull.setContent(classViewModel.getUserInfo().getValue());
                 }
@@ -379,6 +445,17 @@ public class ClassShareScreenFragment extends BaseFragment {
                 }
             }
         });
+        classViewModel.getConnectionStatusLiveData().observe(this,
+            new Observer<ConnectionStatus>() {
+                @Override
+                public void onChanged(ConnectionStatus connectionStatus) {
+                    if (connectionStatus != null && connectionStatus
+                        .equals(ConnectionStatus.CONNECTED) &&
+                        roomPhase != null && roomPhase.equals(RoomPhase.disconnected)) {
+                        joinWhiteBoardRoom(classViewModel.getDisplay().getValue());
+                    }
+                }
+            });
 
     }
 
@@ -413,6 +490,279 @@ public class ClassShareScreenFragment extends BaseFragment {
                 + "&role=" + role + "&roomId=" + roomId + "&authorization=" + currentAuth;
         mWebView.loadUrl(showWhiteUlr);
     }
+
+    private void joinWhiteBoardRoom(ScreenDisplay display) {
+        if (display == null) {
+            return;
+        }
+        uuid = display.getWhiteboardId();
+        String roomToken = display.getWhiteboardRoomToken();
+        if (TextUtils.isEmpty(uuid) || TextUtils.isEmpty(roomToken)) {
+            SLog.d(TAG, "here white uuid or roomToken is null, got error ");
+            return;
+        }
+        SLog.d(TAG, "here white uuid = " + uuid + " , roomToken = " + roomToken);
+        WhiteSdk whiteSdk = new WhiteSdk(
+                mWebView,
+                getContext(),
+                new WhiteSdkConfiguration(com.herewhite.sdk.domain.DeviceType.touch, 10, 0.1)
+                // 如果需要拦截并重写 URL ,请实现如下方法, 但请注意不要每次都生成不同的 URL,尽量 cache 结果并请在必要的时候进行更新(如 更新私有 Token)
+                , new UrlInterrupter() {
+            @Override
+            public String urlInterrupter(String s) {
+                // 修改资源 URL
+                return s;
+            }
+        }
+        );
+        whiteSdk.joinRoom(new RoomParams(uuid, roomToken), new AbstractRoomCallbacks() {
+            @Override
+            public void onPhaseChanged(RoomPhase phase) {
+                SLog.d(TAG, "here white AbstractRoomCallbacks onPhaseChanged phase = " + phase);
+                roomPhase = phase;
+            }
+
+            @Override
+            public void onBeingAbleToCommitChange(boolean isAbleToCommit) {
+                SLog.d(TAG, "here white AbstractRoomCallbacks onPhaseChanged");
+            }
+
+            @Override
+            public void onRoomStateChanged(final RoomState modifyState) {
+                SLog.d(TAG, "here white AbstractRoomCallbacks onRoomStateChanged");
+                if (modifyState != null && modifyState.getSceneState() != null) {
+                    updateSceneState(modifyState.getSceneState());
+                }
+                if (modifyState != null && modifyState.getZoomScale() != null) {
+                    SLog.d(TAG, "here white AbstractRoomCallbacks zoom scale changed = " + modifyState.getZoomScale());
+                }
+            }
+
+            @Override
+            public void onCatchErrorWhenAppendFrame(long userId, Exception error) {
+                SLog.d(TAG, "here white AbstractRoomCallbacks onCatchErrorWhenAppendFrame userId = "+userId+" ，error = "+error.getMessage());
+            }
+
+
+            @Override
+            public void onDisconnectWithError(Exception e) {
+                SLog.d(TAG, "here white joinRoom onDisconnectWithError = "+e.getMessage());
+            }
+
+            @Override
+            public void onKickedWithReason(String reason) {
+                SLog.d(TAG, "here white joinRoom onKickedWithReason reason = " + reason);
+            }
+        }, new Promise<Room>() {
+            @Override
+            public void then(final Room room) {
+                SLog.d(TAG, "here white joinRoom Promise  Room");
+                room.zoomChange(0.3);
+               /* if (isObserver) {
+                    room.disableOperations(true);
+                }*/
+                //设置跟随老师视角模式
+                room.setViewMode(ViewMode.Follower);
+                // 禁止用户主动改变视野
+                room.disableCameraTransform(true);
+                mWebViewLoading.setVisibility(View.GONE);
+                whiteBoardRoom = room;
+                initPencilColor();
+                bindWhiteBoardActions(room);
+                room.getSceneState(new Promise<SceneState>() {
+                    @Override
+                    public void then(SceneState sceneState) {
+                        SLog.d(TAG, "here white joinRoom and then getSceneState");
+                        if (sceneState != null) {
+                            if (sceneState.getScenePath().equals(WhiteBoardConsant.WHITE_BOARD_INIT_SCENE_PATH)) {
+                                currentSceneName = generateSceneName();
+                                whiteBoardScenes = new Scene[]{
+                                        new Scene(currentSceneName, new PptPage("", 0d, 0d))
+                                };
+                                room.putScenes(WhiteBoardConsant.WHITE_BOARD_SCENE_PATH, whiteBoardScenes, 0);
+                                room.setScenePath(WhiteBoardConsant.WHITE_BOARD_SCENE_PATH + "/" + currentSceneName);
+                                mWebView.setVisibility(View.VISIBLE);
+                                currentSceneIndex = 0;
+                            } else {
+                                updateSceneState(sceneState);
+                                room.setScenePath(WhiteBoardConsant.WHITE_BOARD_SCENE_PATH + "/" + currentSceneName);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void catchEx(SDKError sdkError) {
+                        SLog.d(TAG, "here white joinRoom and then getSceneState error = " + sdkError.getMessage());
+                    }
+                });
+            }
+
+            @Override
+            public void catchEx(SDKError t) {
+                SLog.d(TAG, "here white joinRoom Promise  catchEx = " + t.toString());
+                showToast(R.string.white_board_service_error);
+            }
+        });
+    }
+
+    private void updateSceneState(SceneState sceneState) {
+        currentSceneIndex = sceneState.getIndex();
+        whiteBoardScenes = sceneState.getScenes();
+        String scenePath = sceneState.getScenePath();
+        currentSceneName = scenePath.substring(scenePath.lastIndexOf("/") + 1);
+        updateWhiteBoardPagesView();
+    }
+
+    private void bindWhiteBoardActions(final Room room) {
+        //画笔颜色
+        whiteBoardAction.findViewById(R.id.white_action_pencil).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hidePencilColorPopupWindow();
+                pencilColorPopupWindow = new PencilColorPopupWindow(getContext(),room);
+                pencilColorPopupWindow.show(v);
+                hideInputKeyboard();
+
+            }
+        });
+        //文字输入
+        whiteBoardAction.findViewById(R.id.white_action_text).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MemberState memberState = new MemberState();
+                memberState.setCurrentApplianceName(Appliance.TEXT);
+                room.setMemberState(memberState);
+            }
+        });
+        //橡皮擦
+        whiteBoardAction.findViewById(R.id.white_action_eraser).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MemberState memberState = new MemberState();
+                memberState.setCurrentApplianceName(Appliance.ERASER);
+                room.setMemberState(memberState);
+                hideInputKeyboard();
+            }
+        });
+        //清空当前页
+        whiteBoardAction.findViewById(R.id.white_action_clear).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (room != null) {
+                    room.cleanScene(true);
+                }
+                hideInputKeyboard();
+            }
+        });
+        //新增白板页
+        whiteBoardAction.findViewById(R.id.white_action_add).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String sceneName = generateSceneName();
+                room.putScenes(WhiteBoardConsant.WHITE_BOARD_SCENE_PATH, new Scene[]{
+                        new Scene(sceneName, new PptPage("", 0d, 0d)),
+                }, Integer.MAX_VALUE);
+                room.setScenePath(WhiteBoardConsant.WHITE_BOARD_SCENE_PATH + "/" + sceneName);
+                currentSceneName = sceneName;
+                hideInputKeyboard();
+            }
+        });
+        //删除当前白板页
+        whiteBoardAction.findViewById(R.id.white_action_delete).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (whiteBoardScenes.length == 1) {
+                    room.cleanScene(true);
+                } else {
+                    room.removeScenes(WhiteBoardConsant.WHITE_BOARD_SCENE_PATH + "/" + currentSceneName);
+                }
+                hideInputKeyboard();
+            }
+        });
+        //上一页
+        whiteBoardPagesPrevious.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (currentSceneIndex > 0) {
+                    String sceneName = whiteBoardScenes[--currentSceneIndex].getName();
+                    room.setScenePath(WhiteBoardConsant.WHITE_BOARD_SCENE_PATH + "/" + sceneName);
+                }
+                updateWhiteBoardPagesView();
+                hideInputKeyboard();
+            }
+        });
+        //下一页
+        whiteBoardPagesNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (currentSceneIndex < whiteBoardScenes.length - 1) {
+                    String sceneName = whiteBoardScenes[++currentSceneIndex].getName();
+                    room.setScenePath(WhiteBoardConsant.WHITE_BOARD_SCENE_PATH + "/" + sceneName);
+                }
+                updateWhiteBoardPagesView();
+                hideInputKeyboard();
+            }
+        });
+    }
+
+    private void initPencilColor() {
+        int color = getResources().getColor(R.color.white_board_pencil_color_red);
+        int red = (color & 0xff0000) >> 16;
+        int green = (color & 0x00ff00) >> 8;
+        int blue = (color & 0x0000ff);
+        MemberState memberState = new MemberState();
+        memberState.setStrokeColor(new int[]{red, green, blue});
+        memberState.setCurrentApplianceName(Appliance.PENCIL);
+        whiteBoardRoom.setMemberState(memberState);
+    }
+
+    private void updateWhiteBoardPagesView() {
+        if (currentSceneIndex == 0) {
+            whiteBoardPagesPrevious.setEnabled(false);
+        } else {
+            whiteBoardPagesPrevious.setEnabled(true);
+        }
+        if (currentSceneIndex == whiteBoardScenes.length - 1) {
+            whiteBoardPagesNext.setEnabled(false);
+        } else {
+            whiteBoardPagesNext.setEnabled(true);
+        }
+    }
+
+    private String generateSceneName() {
+        String userId = RongIMClient.getInstance().getCurrentUserId();
+        return shortMD5(userId, System.currentTimeMillis() + "");
+    }
+
+    private void hidePencilColorPopupWindow(){
+        if (pencilColorPopupWindow != null) {
+            pencilColorPopupWindow.dismiss();
+        }
+    }
+
+    private String shortMD5(String... args) {
+        try {
+            StringBuilder builder = new StringBuilder();
+
+            for (String arg : args) {
+                builder.append(arg);
+            }
+
+            MessageDigest mdInst = MessageDigest.getInstance("MD5");
+            mdInst.update(builder.toString().getBytes());
+            byte[] mds = mdInst.digest();
+            mds = Base64.encode(mds, Base64.NO_WRAP);
+            String result = new String(mds);
+            result = result.replace("=", "").replace("+", "-").replace("/", "_").replace("\n", "");
+            return result;
+        } catch (Exception e) {
+            SLog.e(TAG, "shortMD5", e);
+        }
+        return "";
+    }
+
+    /*------------------------------------白板，集成第三方 here white 服务 end --------------------------*/
+
 
     /**
      * 更改当前白板的角色
@@ -536,6 +886,11 @@ public class ClassShareScreenFragment extends BaseFragment {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
     /**
      * 设置全屏状态
      *
@@ -561,4 +916,12 @@ public class ClassShareScreenFragment extends BaseFragment {
         void onChangeUser(ClassMember oldUser);
     }
 
+    private void hideInputKeyboard() {
+        View currentFocus = getActivity().getCurrentFocus();
+        if (currentFocus != null) {
+            InputMethodManager imm = (InputMethodManager) getContext()
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(currentFocus.getWindowToken(), 0);
+        }
+    }
 }

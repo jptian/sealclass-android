@@ -134,4 +134,14 @@
     <string name="TapToContiueAsVideoCallIsOn">点击此处 返回SealClass</string>
     <string name="err_user_role_error">版本与角色不符，请联系您的机构</string>
     <string name="VoIPnotavailable">VoIP not available</string>
+
+    <string name="white_board_service_error">白板服务错误，请稍后重试</string>
+    <string name="white_board_loading">白板加载中...</string>
+    <string name="white_board_pencil">画笔</string>
+    <string name="white_board_text">文字</string>
+    <string name="white_board_eraser">橡皮</string>
+    <string name="white_board_clear">清空</string>
+    <string name="white_board_add">新建</string>
+    <string name="white_board_delete">删除</string>
+    <string name="white_board_room_not_exist">房间内未创建白板</string>
 </resources>

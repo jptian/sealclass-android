@@ -27,14 +27,41 @@
             android:layout_centerHorizontal="true"
             android:visibility="gone"
             >
-            <WebView
+            <com.herewhite.sdk.WhiteboardView
                 android:id="@+id/class_whiteboard_display"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:visibility="gone"
                 >
 
-            </WebView>
+            </com.herewhite.sdk.WhiteboardView>
+            <Button
+                android:id="@+id/white_board_pages_previous"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentLeft="true"
+                android:layout_centerInParent="true"
+                android:layout_marginLeft="20dp"
+                android:background="@drawable/selector_white_board_action_previous"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/white_board_pages_next"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerInParent="true"
+                android:layout_marginRight="20dp"
+                android:background="@drawable/selector_white_board_action_next"
+                android:visibility="gone" />
+
+            <include
+                android:id="@+id/white_board_action"
+                layout="@layout/item_white_board_action"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true" />
 
             <RelativeLayout
                 android:id="@+id/class_whiteboard_loading"

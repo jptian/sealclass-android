@@ -12,11 +12,17 @@ public class ScreenDisplay {
     private final static String DISPLAY_TYPE = "type";
     private final static String DISPLAY_URI = "uri";
     private final static String DISPLAY_USER_ID = "userId";
+    private final static String DISPLAY_WHITE_BOARD_TYPE = "whiteboardType";
+    private final static String DISPLAY_WHITE_BOARD_UUID = "whiteboardId";
+    private final static String DISPLAY_WHITE_BOARD_ROOM_TOKEN = "whiteboardRoomToken";
 
     private String userId;
     private String whiteBoardUri;
     private Display type;
     private ClassMember classMember;
+    private int whiteboardType;
+    private String whiteboardId;
+    private String whiteboardRoomToken;
 
     public static ScreenDisplay createScreenDisplay(String display) {
         ScreenDisplay screenDisplay = new ScreenDisplay();
@@ -43,9 +49,15 @@ public class ScreenDisplay {
                     screenDisplay.setWhiteBoardUri(value);
                 } else if (DISPLAY_USER_ID.equals(key)) {   // 若显示为用户类型时，用户 id
                     screenDisplay.setUserId(value);
-                } else if(screenDisplay.getWhiteBoardUri() != null){ //若已存在白板信息，则后续参数为白板的参数
-                    String oriUrl = screenDisplay.getWhiteBoardUri();
-                    screenDisplay.setWhiteBoardUri(oriUrl + "?" + param);
+                } else if (DISPLAY_WHITE_BOARD_TYPE.equals(key)) {
+                  screenDisplay.setWhiteboardType(Integer.valueOf(value));
+                } else if (DISPLAY_WHITE_BOARD_UUID.equals(key)) {
+                  screenDisplay.setWhiteboardId(value);
+                } else if (DISPLAY_WHITE_BOARD_ROOM_TOKEN.equals(key)) {
+                  screenDisplay.setWhiteboardRoomToken(value);
+                } else if (screenDisplay.getWhiteBoardUri() != null) { //若已存在白板信息，则后续参数为白板的参数
+                  String oriUrl = screenDisplay.getWhiteBoardUri();
+                  screenDisplay.setWhiteBoardUri(oriUrl + "?" + param);
                 }
             }
         } catch (Exception e) {
@@ -87,7 +99,32 @@ public class ScreenDisplay {
         this.classMember = classMember;
     }
 
-    public enum Display {
+    public String getWhiteboardId() {
+        return whiteboardId;
+    }
+
+    public void setWhiteboardId(String whiteboardId) {
+        this.whiteboardId = whiteboardId;
+    }
+
+    public String getWhiteboardRoomToken() {
+        return whiteboardRoomToken;
+    }
+
+    public void setWhiteboardRoomToken(String whiteboardRoomToken) {
+        this.whiteboardRoomToken = whiteboardRoomToken;
+    }
+
+  public int getWhiteboardType() {
+    return whiteboardType;
+  }
+
+  public void setWhiteboardType(int whiteboardType) {
+    this.whiteboardType = whiteboardType;
+  }
+
+
+  public enum Display {
         ASSISTANT(0),   //0 助教
         LECTURER(1),    //1 讲师
         WHITEBOARD(2),  //2 白板
@@ -119,10 +156,13 @@ public class ScreenDisplay {
     @Override
     public String toString() {
         return "ScreenDisplay{" +
-                "userId='" + userId + '\'' +
-                ", whiteBoardUri='" + whiteBoardUri + '\'' +
-                ", type=" + type +
-                ", classMember=" + classMember +
-                '}';
+            "userId='" + userId + '\'' +
+            ", type=" + type +
+            ", whiteboardType='" + whiteboardType + '\'' +
+            ", whiteBoardUri='" + whiteBoardUri + '\'' +
+            ", whiteboardId='" + whiteboardId + '\'' +
+            ", whiteboardRoomToken='" + whiteboardRoomToken + '\'' +
+            ", classMember=" + classMember +
+            '}';
     }
 }
