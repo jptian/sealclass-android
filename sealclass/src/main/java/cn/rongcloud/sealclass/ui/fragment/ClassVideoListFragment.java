@@ -11,10 +11,10 @@ import android.widget.ListView;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import cn.rongcloud.rtc.api.stream.RCRTCVideoView;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.rongcloud.rtc.engine.view.RongRTCVideoView;
 import cn.rongcloud.sealclass.Config;
 import cn.rongcloud.sealclass.R;
 import cn.rongcloud.sealclass.model.ClassMember;
@@ -268,9 +268,9 @@ public class ClassVideoListFragment extends BaseFragment {
                             if (shareScreenRtcVideoView == null) {
                                 shareScreenRtcVideoView = new RadioRtcVideoView(getActivity());
                                 final RadioRtcVideoView finalShareScreenVideoView = shareScreenRtcVideoView;
-                                shareScreenRtcVideoView.setOnSizeChangedListener(new RongRTCVideoView.OnSizeChangedListener() {
+                                shareScreenRtcVideoView.setOnSizeChangedListener(new RCRTCVideoView.OnSizeChangedListener() {
                                     @Override
-                                    public void onChanged(RongRTCVideoView.Size size) {
+                                    public void onChanged(RCRTCVideoView.Size size) {
                                         if (size != null) {
                                             float radio = (float) size.with / (float) size.height;
                                             SLog.d("video_size", "size == " + size.with + ", " + size.height + ", " + radio);
@@ -342,9 +342,9 @@ public class ClassVideoListFragment extends BaseFragment {
                         if (shareScreenRtcVideoView == null) {
                             shareScreenRtcVideoView = new RadioRtcVideoView(getActivity());
                             final RadioRtcVideoView finalShareScreenVideoView = shareScreenRtcVideoView;
-                            shareScreenRtcVideoView.setOnSizeChangedListener(new RongRTCVideoView.OnSizeChangedListener() {
+                            shareScreenRtcVideoView.setOnSizeChangedListener(new RCRTCVideoView.OnSizeChangedListener() {
                                 @Override
-                                public void onChanged(RongRTCVideoView.Size size) {
+                                public void onChanged(RCRTCVideoView.Size size) {
                                     if (size != null) {
                                         float radio = (float) size.with / (float) size.height;
                                         SLog.d("video_size", "size == " + size.with + ", " + size.height + ", " + radio);

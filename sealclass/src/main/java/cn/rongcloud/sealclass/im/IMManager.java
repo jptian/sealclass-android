@@ -2,10 +2,12 @@ package cn.rongcloud.sealclass.im;
 
 import android.content.Context;
 
+import io.rong.imlib.RongIMClient.ConnectCallback;
+import io.rong.imlib.RongIMClient.ConnectionErrorCode;
+import io.rong.imlib.RongIMClient.DatabaseOpenStatus;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.rongcloud.sealclass.common.ErrorCode;
 import cn.rongcloud.sealclass.common.ResultCallback;
 import cn.rongcloud.sealclass.im.message.ApplyForSpeechMessage;
 import cn.rongcloud.sealclass.im.message.AssistantTransferMessage;
@@ -27,7 +29,6 @@ import cn.rongcloud.sealclass.im.provider.ClassMemberChangedNotificationProvider
 import cn.rongcloud.sealclass.im.provider.ClassTextMessageItemProvider;
 import cn.rongcloud.sealclass.im.provider.RoleChangedMessageItemProvider;
 import cn.rongcloud.sealclass.model.RoleChangedUser;
-import cn.rongcloud.sealclass.utils.Utils;
 import cn.rongcloud.sealclass.utils.log.SLog;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.manager.IUnReadMessageObserver;
@@ -66,11 +67,7 @@ public class IMManager {
      */
     public static void init(Context context,String appkey) {
         final IMManager imManager = getInstance();
-        /*
-         * 初始化 SDK，在整个应用程序全局，只需要调用一次。建议在 Application 继承类中调用。
-         */
 
-        RongIMClient.getInstance().switchAppKey(appkey);
         // 可在初始 SDK 时直接带入融云 IM 申请的APP KEY
         RongIM.init(context, appkey, false);
 
@@ -137,13 +134,7 @@ public class IMManager {
      * @param token
      */
     public void login(final String token, final ResultCallback<String> callBack) {
-        RongIM.connect(token, new RongIMClient.ConnectCallback() {
-            @Override
-            public void onTokenIncorrect() {
-                SLog.e(SLog.TAG_IM, "IM connect token incorrect:" + token);
-                callBack.onFail(ErrorCode.IM_ERROR.getCode());
-            }
-
+        RongIMClient.connect(token, new ConnectCallback() {
             @Override
             public void onSuccess(String userId) {
                 SLog.d(SLog.TAG_IM, "IM connect success:" + userId);
@@ -151,13 +142,14 @@ public class IMManager {
             }
 
             @Override
-            public void onError(RongIMClient.ErrorCode errorCode) {
-                SLog.e(SLog.TAG_IM, "IM connect error - code:" + errorCode.getValue() + " ,message:" + errorCode.getMessage());
-                if (errorCode == RongIMClient.ErrorCode.RC_CONN_REDIRECTED) {
-                    login(token, callBack);
-                } else {
-                    callBack.onFail(errorCode.getValue());
-                }
+            public void onError(ConnectionErrorCode errorCode) {
+                SLog.e(SLog.TAG_IM, "IM connect error - code:" + errorCode.getValue());
+                callBack.onFail(errorCode.getValue());
+            }
+
+            @Override
+            public void onDatabaseOpened(DatabaseOpenStatus databaseOpenStatus) {
+                SLog.d(SLog.TAG_IM, "IM connect onDatabaseOpened");
             }
         });
     }

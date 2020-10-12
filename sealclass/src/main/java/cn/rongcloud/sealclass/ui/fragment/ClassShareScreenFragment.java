@@ -30,6 +30,7 @@ import androidx.annotation.RequiresApi;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import cn.rongcloud.rtc.api.stream.RCRTCVideoView;
 import cn.rongcloud.sealclass.whiteboard.WhiteBoardConsant;
 import com.herewhite.sdk.AbstractRoomCallbacks;
 import com.herewhite.sdk.Room;
@@ -54,7 +55,6 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.rongcloud.rtc.engine.view.RongRTCVideoView;
 import cn.rongcloud.sealclass.R;
 import cn.rongcloud.sealclass.api.HttpClientManager;
 import cn.rongcloud.sealclass.common.ShowToastObserver;
@@ -392,9 +392,9 @@ public class ClassShareScreenFragment extends BaseFragment {
                     if (shareScreenRtcVideoView == null) {
                         shareScreenRtcVideoView = new RadioRtcVideoView(getActivity());
                         final RadioRtcVideoView finalShareScreenVideoView = shareScreenRtcVideoView;
-                        shareScreenRtcVideoView.setOnSizeChangedListener(new RongRTCVideoView.OnSizeChangedListener() {
+                        shareScreenRtcVideoView.setOnSizeChangedListener(new RCRTCVideoView.OnSizeChangedListener() {
                             @Override
-                            public void onChanged(RongRTCVideoView.Size size) {
+                            public void onChanged(RCRTCVideoView.Size size) {
                                 if (size != null) {
                                     float radio = (float) size.with / (float) size.height;
                                     SLog.d("video_size", "size == " + size.with + ", " + size.height + ", " + radio);

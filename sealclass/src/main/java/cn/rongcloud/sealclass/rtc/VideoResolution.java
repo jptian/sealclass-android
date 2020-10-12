@@ -1,24 +1,24 @@
 package cn.rongcloud.sealclass.rtc;
 
-import cn.rongcloud.rtc.RongRTCConfig;
+import cn.rongcloud.rtc.base.RCRTCParamsType.RCRTCVideoResolution;
 
 /**
  * 视频分辨率
  */
 public enum VideoResolution {
-    RESOLUTION_256_144_15f(0, "256x144", RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_144P_15f),
-    RESOLUTION_320_240_15f(1, "320x240", RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_240P_15f),
-    RESOLUTION_480_360_15f(2, "480x360", RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_360P_15f_1),
-    RESOLUTION_640_360_15f(3, "640x360", RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_360P_15f_2),
-    RESOLUTION_640_480_15f(4, "640x480", RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_480P_15f_1),
-    RESOLUTION_720_480_15f(5, "720x480", RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_480P_15f_2),
-    RESOLUTION_1280_720_15f(6, "1280x720", RongRTCConfig.RongRTCVideoProfile.RONGRTC_VIDEO_PROFILE_720P_15f);
+    RESOLUTION_256_144_15f(0, "256x144", RCRTCVideoResolution.RESOLUTION_144_256),
+    RESOLUTION_320_240_15f(1, "320x240", RCRTCVideoResolution.RESOLUTION_240_320),
+    RESOLUTION_480_360_15f(2, "480x360", RCRTCVideoResolution.RESOLUTION_360_480),
+    RESOLUTION_640_360_15f(3, "640x360", RCRTCVideoResolution.RESOLUTION_360_640),
+    RESOLUTION_640_480_15f(4, "640x480", RCRTCVideoResolution.RESOLUTION_480_640),
+    RESOLUTION_720_480_15f(5, "720x480", RCRTCVideoResolution.RESOLUTION_480_720),
+    RESOLUTION_1280_720_15f(6, "1280x720", RCRTCVideoResolution.RESOLUTION_720_1280);
 
     private int id;
     private String resolution;
-    private RongRTCConfig.RongRTCVideoProfile profile;
+    private RCRTCVideoResolution profile;
 
-    VideoResolution(int id, String resolution, RongRTCConfig.RongRTCVideoProfile profile) {
+    VideoResolution(int id, String resolution, RCRTCVideoResolution profile) {
         this.id = id;
         this.resolution = resolution;
         this.profile = profile;
@@ -32,7 +32,7 @@ public enum VideoResolution {
         return resolution;
     }
 
-    public RongRTCConfig.RongRTCVideoProfile getProfile() {
+    public RCRTCVideoResolution getProfile() {
         return profile;
     }
 

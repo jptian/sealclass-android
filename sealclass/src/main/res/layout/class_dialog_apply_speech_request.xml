@@ -26,6 +26,7 @@
             android:id="@+id/dialog_btn_positive"
             android:layout_width="@dimen/class_dialog_apply_speech_request_btn_value"
             android:layout_height="@dimen/class_dialog_apply_speech_request_btn_value"
+            android:textAllCaps="false"
             android:background="@drawable/class_dialog_apply_speech_request_approve"
             android:layout_marginLeft="@dimen/class_dialog_apply_speech_request_approve_margin_left"/>
 
@@ -33,6 +34,7 @@
             android:id="@+id/dialog_btn_negative"
             android:layout_width="@dimen/class_dialog_apply_speech_request_btn_value"
             android:layout_height="@dimen/class_dialog_apply_speech_request_btn_value"
+            android:textAllCaps="false"
             android:background="@drawable/class_dialog_apply_speech_request_reject"
             android:layout_marginRight="@dimen/class_dialog_apply_speech_request_reject_margin_right"
             android:layout_marginLeft="@dimen/class_dialog_apply_speech_request_reject_margin_left"/>

@@ -55,4 +55,27 @@ public class Utils {
         }
         return deviceId;
     }
+
+    /**
+     * double click
+     *
+     * @return
+     */
+    public static boolean isFastDoubleClick() {
+        return isFastDoubleClick("Default");
+    }
+
+    public static boolean isFastDoubleClick(String eventType) {
+        Long lastClickTime = mapLastClickTime.get(eventType);
+        if (lastClickTime == null) {
+            lastClickTime = 0l;
+        }
+        long curTime = System.currentTimeMillis();
+        long timeD = curTime - lastClickTime;
+        if (timeD > 0 && timeD < 800) {
+            return true;
+        }
+        mapLastClickTime.put(eventType, curTime);
+        return false;
+    }
 }

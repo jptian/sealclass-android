@@ -9,10 +9,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import cn.rongcloud.rtc.engine.view.RongRTCVideoView;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoView;
 import cn.rongcloud.sealclass.R;
 import cn.rongcloud.sealclass.model.ClassMember;
-import cn.rongcloud.sealclass.model.Role;
 import cn.rongcloud.sealclass.permission.ClassPermission;
 
 /**
@@ -49,12 +48,12 @@ public class ClassVideoListItem extends RelativeLayout {
         contentText = view.findViewById(R.id.class_tv_video_item_content);
     }
 
-    public void addVideoView(RongRTCVideoView videoView, LinearLayout.LayoutParams params) {
+    public void addVideoView(RCRTCVideoView videoView, LinearLayout.LayoutParams params) {
         videoViewContainer.removeAllViews();
         videoViewContainer.addView(videoView, params);
     }
 
-    public void addVideoView(RongRTCVideoView videoView) {
+    public void addVideoView(RCRTCVideoView videoView) {
         videoViewContainer.removeAllViews();
         videoViewContainer.addView(videoView);
     }
@@ -63,7 +62,7 @@ public class ClassVideoListItem extends RelativeLayout {
         return videoViewContainer.getChildCount();
     }
 
-    public boolean hasVideoView(RongRTCVideoView videoView) {
+    public boolean hasVideoView(RCRTCVideoView videoView) {
         int i = videoViewContainer.indexOfChild(videoView);
         return i < 0 ? false : true;
     }

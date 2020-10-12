@@ -1,0 +1,138 @@
+<resources>
+<string name="app_name">SealClass</string>
+<string name="class_member_list_title_name">Online members</string>
+<string name="class_role_assistant">Assistant</string>
+<string name="class_role_lecturer">Teacher</string>
+<string name="class_tv_member_apply_text">Request to speak</string>
+<string name="login_input_hint_class_id">Class ID</string>
+<string name="login_input_hint_user_phone">Phone number</string>
+<string name="login_error_tips_class_id">up to 40 characters include numbers and letters</string>
+<string name="login_error_tips_school_id">letters or numbers, 4-8 characters</string>
+<string name="login_error_tips_password">letters or numbers, 6-10 characters</string>
+<string name="login_error_tips_user_phone">please enter the correct phone number</string>
+<string name="login_option_listener">audience</string>
+<string name="login_option_enter_without_video">turn off the video when joining</string>
+<string name="login_enter_class">join the class</string>
+<string name="setting">Settings</string>
+<string name="login_setting_resolution_label">Resolution:</string>
+<string name="common_dialog_negative_text">cancel</string>
+<string name="common_dialog_posotive_text">OK</string>
+<string name="dialog_downgrade_positive_text">downgrade</string>
+<string name="dialog_downgrade_negative_text">cancel</string>
+<string name="class_dialog_need_downgrade_positive">downgrade</string>
+<string name="class_dialog_need_downgrade_negative">Refuse</string>
+<string name="class_dialog_need_downgrade_content">%1$s request to speak, but the number of students is full, please downgrade one student or refuse to speak</string>
+<string name="class_dialog_leave_room_content">whether to leave the classroom? </string>
+<string name="class_dialog_leave_room_positive_text">exit</string>
+<string name="class_dialog_leave_room_negative_text">cancel</string>
+<string name="class_dialog_create_whiteboard">new whiteboard</string>
+<string name="class_whitboard_default_name_format" formatted="true">whiteboard %d</string>
+<string name="class_resource_lecturer_not_exist">No teacher currently</string>
+<string name="class_resource_assistant_not_exist">No assistant currently</string>
+<string name="you">you</string>
+<string name="mark_name_separate">,</string>
+<string name="class_conversation_notify_member_join_format" formatted="true">%s join the class</string>
+<string name="class_conversation_notify_member_leave_format" formatted="true">%s left the class</string>
+<string name="class_conversation_notify_member_kick_format" formatted="true">%s left the class</string>
+<string name="class_conversation_notify_role_to_assistant" formatted="true">%s is  assistant now</string>
+<string name="class_conversation_notify_role_to_lecturer" formatted="true">%s is teacher now</string>
+<string name="class_conversation_notify_role_to_student" formatted="true">%s is a student now</string>
+<string name="class_conversation_notify_role_to_listener" formatted="true">%s is a audience now</string>
+<string name="class_dialog_request_invite_camera_connect">the teacher wants to active your camera</string>
+<string name="class_dialog_request_invite_mic_connect">the teacher wants to active your microphone</string>
+<string name="class_dialog_agree_positive">agree</string>
+<string name="class_dialog_reject_negative">refuse </string>
+<string name="class_dialog_apply_speech_request_content">%1$s requests to speak</string>
+<string name="class_dialog_upgrade_role_content">The teacher invites you to speak</string>
+<string name="login_dialog_not_listener_over_max">The number in the class is full. Will you join as an audiance? </string>
+<string name="error_api_common_error">request server error </string>
+<string name="error_api_server_error">The server has an error</string>
+<string name="error_api_invalid_auth">user authentication error, please log in again</string>
+<string name="error_api_permission_denied">No permission</string>
+<string name="error_api_create_room_error">failed to create a classroom</string>
+<string name="error_api_join_room_error">failed to join the classroom</string>
+<string name="error_api_room_not_exist">the classroom does not exist</string>
+<string name="error_api_user_not_in_room">the user is not in the classroom</string>
+<string name="error_api_exit_room_error">failed to exit the room</string>
+<string name="error_api_lecturer_not_in_room">the teacher is not in the classroom</string>
+<string name="error_api_assistant_not_in_room">the assistant is not in the classroom</string>
+<string name="error_api_create_white_board_error">failed to create a whiteboard</string>
+<string name="error_api_white_board_not_exist">The whiteboard does not exist</string>
+<string name="error_api_delete_white_error">Failed to delete the whiteboard</string>
+<string name="error_api_already_in_room">has joined the classroom</string>
+<string name="error_api_can_not_change_self_role">can not change their own identity</string>
+<string name="error_api_ticket_invalid">Timed out</string>
+<string name="error_api_over_max_count">Full attendances</string>
+<string name="error_api_lecturer_has_exist">teacher already exists</string>
+<string name="error_api_downgrade_error">downgrade operation failed</string>
+<string name="error_api_change_role_error">failed to set identity</string>
+<string name="toast_only_self_in_room">Only you in the current room, you can wait or leave</string>
+<string name="toast_tips_role_is_listener">You are currently an audience, others cannot see/heard you</string>
+<string name="toast_other_side_accept_your_request">Your request is approved</string>
+<string name="toast_other_side_reject_your_request">Your request is rejected </string>
+<string name="toast_other_side_not_respond">No responding, please try again later</string>
+<string name="toast_assistant_close_your_camera">The teacher has closed your camera</string>
+<string name="toast_assistant_close_your_mic">The teacher has closed your microphone</string>
+<string name="toast_assistant_accept_your_speech">Your request is approved</string>
+<string name="toast_assistant_reject_your_speech">Your request is rejected </string>
+<string name="toast_assistant_not_respond">No responding, please try again later</string>
+<string name="toast_error_need_app_permission">audio and video related permissions are required</string>
+<string name="toast_your_role_is_to_student">you are a student now</string>
+<string name="toast_your_role_is_to_lecturer">you are a teacher now</string>
+<string name="toast_your_role_is_to_assistant">you are an assistant now</string>
+<string name="toast_you_kick_off_one_from_class_format">you have removed %s from the class</string>
+<string name="error_network_error">network error </string>
+<string name="error_unkown_error">unknown error</string>
+<string name="error_im_common_error">There is an error in IM</string>
+<string name="error_rtc_common_error">audio and video errors </string>
+<string name="class_share_screen_null_text">currently there is no shared content, you can create a new shared content</string>
+<string name="class_share_screen_null_text_other">currently there is no shared content, please wait patiently</string>
+<string name="class_resource_list_title_name">resource library</string>
+<string name="class_white_board_select_upload_file">Please select the file to upload</string>
+<string name="class_item_member_applying">in application...</string>
+<string name="toast_assistant_respond_apply_speech_request_timeout">Timeout</string>
+<string name="class_video_list_lecturer_content">The teacher is online </string>
+<string name="class_video_list_Assistant_content">The teacher is preparing</string>
+<string name="class_video_list_lecturer_comming">The teacher is coming, please wait</string>
+-<string-array name="class_member_list_operate_dialog_content">
+<item>Transfer assistant? </item>
+<item>Set him as a teacher? </item>
+<item>Turn on his microphone? </item>
+<item>Turn off his microphones? </item>
+<item>Turn on  his camera? </item>
+<item>Turn off his camera? </item>
+<item>Upgrade? </item>
+<item>Demote? </item>
+<item>Remove? </item>
+
+</string-array>
+
+<string name="login_input_hint_organization_id">School ID</string>
+<string name="login_input_hint_user_pwd">input password</string>
+<string name="err_user_not_exist">user or school does not exist</string>
+<string name="err_user_password_error">password error</string>
+<string name="err_user_has_exist">user does not exist</string>
+<string name="err_school_not_exist">school does not exist</string>
+<string name="kicked_offline_by_other_client">you have logged in other device</string>
+<string name="apk_update_title">Detected the new version V%s , upgraded?</string>
+<string name="apk_update_dialog_ok">OK</string>
+<string name="apk_update_dialog_cancel">cancel </string>
+<string name="downloading_apk">is downloading in the background...</string>
+<string name="update_app_model_prepare">ready to download </string>
+<string name="update_app_model_progress">is downloading%1$d%2$s</string>
+<string name="update_app_model_success">successfully downloaded(click to install)</string>
+<string name="update_app_model_error">download failed(click the browser to download)</string>
+<string name="TapToContiueAsVideoCallIsOn">Click here to return to SealClass</string>
+<string name="err_user_role_error">Your are using a wrong version</string>
+<string name="VoIPnotavailable">VoIP is not available</string>
+<string name="white_board_service_error">Whiteboard service error, please try again later</string>
+<string name="white_board_loading">loading whiteboard...</string>
+<string name="white_board_pencil">Paint</string>
+<string name="white_board_text">Text</string>
+<string name="white_board_eraser">Eraser</string>
+<string name="white_board_clear">Clear</string>
+<string name="white_board_add">New</string>
+<string name="white_board_delete">Delete</string>
+<string name="white_board_room_not_exist">No whiteboard in the room</string>
+
+</resources>

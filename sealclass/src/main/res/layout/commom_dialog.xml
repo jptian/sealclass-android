@@ -47,6 +47,7 @@
             android:layout_weight="1"
             android:background="@drawable/common_dialog_negative_seletor"
             android:textSize="@dimen/common_dialog_text_size"
+            android:textAllCaps="false"
             android:textColor="@color/colorDialogText"
             android:text="@string/common_dialog_negative_text"
             />
@@ -62,6 +63,7 @@
             android:layout_weight="1"
             android:background="@drawable/common_dialog_positive_seletor"
             android:textSize="@dimen/common_dialog_text_size"
+            android:textAllCaps="false"
             android:textColor="@color/colorDialogPositive"
             android:text="@string/common_dialog_posotive_text"
 

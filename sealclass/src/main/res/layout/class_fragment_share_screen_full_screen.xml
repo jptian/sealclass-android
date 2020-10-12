@@ -42,6 +42,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_centerInParent="true"
                 android:layout_marginLeft="20dp"
+                android:textAllCaps="false"
                 android:background="@drawable/selector_white_board_action_previous"
                 android:visibility="gone" />
 
@@ -52,6 +53,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_centerInParent="true"
                 android:layout_marginRight="20dp"
+                android:textAllCaps="false"
                 android:background="@drawable/selector_white_board_action_next"
                 android:visibility="gone" />
 

@@ -21,6 +21,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import io.rong.imlib.RongIMClient;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -799,6 +800,8 @@ public class ClassActivity extends ExtendBaseActivity implements ToastBySelfComp
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        //每次点击"加入房间"按钮都会从 app server 新获取userId,需要主动断开IM 连接
+        RongIMClient.getInstance().logout();
     }
 
     /**
@@ -898,11 +901,20 @@ public class ClassActivity extends ExtendBaseActivity implements ToastBySelfComp
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (classViewModel != null && classViewModel.isInRoom() && !classViewModel.isMuteVideo()) {
+    protected void onStart() {
+        super.onStart();
+        if (classViewModel != null  && !classViewModel.isMuteVideo()
+            && classViewModel.getUserInfo().getValue().isCamera()) {
             classViewModel.startCapture();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        if (classViewModel != null && classViewModel.getUserInfo().getValue().isCamera()) {
+            classViewModel.stopCapture();
+        }
+        super.onStop();
     }
 }
 

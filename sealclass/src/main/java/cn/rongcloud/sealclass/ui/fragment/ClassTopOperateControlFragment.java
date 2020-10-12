@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import cn.rongcloud.sealclass.utils.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -150,10 +151,18 @@ public class ClassTopOperateControlFragment extends BaseFragment {
                 TopOperate type = TopOperate.getType(item.id);
                 switch (type) {
                     case CMAERA:
+                        if(Utils.isFastDoubleClick()){
+                            ((CheckBox) operateView.getView(TopOperate.CMAERA.getValue())).setChecked(!isChecked);
+                            return;
+                        }
                         classViewModel.setLocalVideoEnable(!isChecked);
                         deviceSyncCamera(getRoomId(), !isChecked);
                         break;
                     case MIC:
+                        if(Utils.isFastDoubleClick()){
+                            ((CheckBox) operateView.getView(TopOperate.MIC.getValue())).setChecked(!isChecked);
+                            return;
+                        }
                         classViewModel.setLocalMicEnable(!isChecked);
                         deviceSyncMic(getRoomId(), !isChecked);
                         break;

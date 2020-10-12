@@ -3,15 +3,16 @@ package cn.rongcloud.sealclass.repository;
 import android.content.Context;
 import android.text.TextUtils;
 
+import cn.rongcloud.rtc.api.stream.RCRTCInputStream;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoView;
+import cn.rongcloud.rtc.base.RCRTCMediaType;
+import cn.rongcloud.rtc.base.RTCErrorCode;
+import cn.rongcloud.sealclass.common.ResultUICallback;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.rongcloud.rtc.RTCErrorCode;
-import cn.rongcloud.rtc.engine.view.RongRTCVideoView;
-import cn.rongcloud.rtc.stream.MediaType;
-import cn.rongcloud.rtc.stream.remote.RongRTCAVInputStream;
 import cn.rongcloud.sealclass.api.SealClassApi;
 import cn.rongcloud.sealclass.api.retrofit.CallBackWrapper;
 import cn.rongcloud.sealclass.api.retrofit.RetrofitUtil;
@@ -450,20 +451,20 @@ public class ClassRepository extends BaseRepository {
         RtcManager.getInstance().setRtcCallback(new VideoCallback(listener));
     }
 
-    public void joinRtcRoom(String roomId, ResultCallback<String> callback) {
+    public void joinRtcRoom(String roomId, ResultUICallback<String> callback) {
         RtcManager.getInstance().joinRtcRoom(roomId, callback);
     }
 
-    public void quitRtcRoom(String roomId, ResultCallback<String> callback) {
+    public void quitRtcRoom(String roomId, ResultUICallback<String> callback) {
         RtcManager.getInstance().quitRtcRoom(roomId, callback);
     }
 
-    public void startRtcChat(RongRTCVideoView view, ResultCallback<Boolean> callback) {
+    public void startRtcChat(RCRTCVideoView view, ResultUICallback<Boolean> callback) {
         RtcManager.getInstance().startRtcChat(view, callback);
     }
 
 
-    public void stopRtcChat(ResultCallback<Boolean> callback) {
+    public void stopRtcChat(ResultUICallback<Boolean> callback) {
         RtcManager.getInstance().stopRTCChat(callback);
     }
 
@@ -475,48 +476,48 @@ public class ClassRepository extends BaseRepository {
         RtcManager.getInstance().setLocalMicEnable(enable);
     }
 
-    public void muteRoomVoice(boolean mute, ResultCallback<Boolean> callback) {
+    public void muteRoomVoice(boolean mute, ResultUICallback<Boolean> callback) {
         RtcManager.getInstance().muteRoomVoice(mute, callback);
     }
 
-    public void subscribeAllResource(HashMap<String, RongRTCVideoView> videoViews, ResultCallback<Boolean> callback) {
+    public void subscribeAllResource(HashMap<String, RCRTCVideoView> videoViews, ResultUICallback<Boolean> callback) {
         RtcManager.getInstance().subscribeAll(videoViews, callback);
     }
 
-    public void subscribeResource(String userId, RongRTCVideoView videoView, int role,ResultCallback<String> callback) {
+    public void subscribeResource(String userId, RCRTCVideoView videoView, int role,ResultUICallback<String> callback) {
         RtcManager.getInstance().subscribe(userId, videoView, role,callback);
     }
 
-   public void subscribeResource(String userId, RongRTCVideoView videoView, RongRTCVideoView screenShareView, int role, ResultCallback<String> callback) {
+   public void subscribeResource(String userId, RCRTCVideoView videoView, RCRTCVideoView screenShareView, int role, ResultUICallback<String> callback) {
        RtcManager.getInstance().subscribe(userId, videoView, screenShareView, role,callback);
    }
 
-    public void unSubscribeResource(String userId,  ResultCallback<String> callback) {
+    public void unSubscribeResource(String userId,  ResultUICallback<String> callback) {
         RtcManager.getInstance().unSubscribe(userId, callback);
     }
 
-    public void subscribeVideo(String userId, RongRTCVideoView videoView, ResultCallback<String> callback) {
+    public void subscribeVideo(String userId, RCRTCVideoView videoView, ResultUICallback<String> callback) {
         RtcManager.getInstance().subscribeVideo(userId, videoView, callback);
     }
 
-    public void unSubscribeVideo(String userId,  ResultCallback<String> callback) {
+    public void unSubscribeVideo(String userId,  ResultUICallback<String> callback) {
         RtcManager.getInstance().unSubscribeVideo(userId, callback);
     }
 
-    public void subscribeAudio(String userId, ResultCallback<String> callback) {
+    public void subscribeAudio(String userId, ResultUICallback<String> callback) {
         RtcManager.getInstance().subscribeAudio(userId, callback);
     }
 
-    public void unSubscribeAudio(String userId,  ResultCallback<String> callback) {
+    public void unSubscribeAudio(String userId,  ResultUICallback<String> callback) {
         RtcManager.getInstance().unSubscribeAudio(userId, callback);
     }
 
 
-    public void subscribeScreen(String userId, RongRTCVideoView videoView, ResultCallback<String> callback) {
+    public void subscribeScreen(String userId, RCRTCVideoView videoView, ResultUICallback<String> callback) {
         RtcManager.getInstance().subscribeScreen(userId, videoView, callback);
     }
 
-    public void unSubscribeScreen(String userId, ResultCallback<String> callback) {
+    public void unSubscribeScreen(String userId, ResultUICallback<String> callback) {
         RtcManager.getInstance().unSubscribeScreen(userId, callback);
     }
 
@@ -531,7 +532,7 @@ public class ClassRepository extends BaseRepository {
 
 
         @Override
-        public void onInitialRemoteUserList(Map<String, List<RongRTCAVInputStream>> userInfos) {
+        public void onInitialRemoteUserList(Map<String, List<RCRTCInputStream>> userInfos) {
 
             if (listener != null) {
                 listener.onInitVideoList(getStreamResourceList(userInfos));
@@ -539,7 +540,7 @@ public class ClassRepository extends BaseRepository {
         }
 
         @Override
-        public void onRemoteUserPublishResource(String userId, List<RongRTCAVInputStream> list) {
+        public void onRemoteUserPublishResource(String userId, List<RCRTCInputStream> list) {
             if (listener != null) {
                 StreamResource streamResource = getPublicStreamResource(userId, list);
                 listener.onAddVideoUser(streamResource);
@@ -547,7 +548,7 @@ public class ClassRepository extends BaseRepository {
         }
 
         @Override
-        public void onRemoteUserUnPublishResource(String userId, List<RongRTCAVInputStream> list) {
+        public void onRemoteUserUnPublishResource(String userId, List<RCRTCInputStream> list) {
             if (listener != null) {
                 StreamResource streamResource = getUnPublicStreamResource(userId, list);
                 listener.onUserLeft(streamResource);
@@ -599,28 +600,28 @@ public class ClassRepository extends BaseRepository {
     };
 
 
-    private List<StreamResource> getStreamResourceList(Map<String, List<RongRTCAVInputStream>> userInfos) {
+    private List<StreamResource> getStreamResourceList(Map<String, List<RCRTCInputStream>> userInfos) {
         if (userInfos == null) {
             return null;
         }
 
         List<StreamResource> resources = new ArrayList<>();
-        for (Map.Entry<String, List<RongRTCAVInputStream>> userInfo : userInfos.entrySet()) {
+        for (Map.Entry<String, List<RCRTCInputStream>> userInfo : userInfos.entrySet()) {
             resources.add(getPublicStreamResource(userInfo.getKey(), userInfo.getValue()));
         }
         return resources;
     }
 
-    private StreamResource getPublicStreamResource(String userId, List<RongRTCAVInputStream> list) {
+    private StreamResource getPublicStreamResource(String userId, List<RCRTCInputStream> list) {
         StreamResource streamResource = new StreamResource();
         streamResource.userId = userId;
         if (list == null) {
             return streamResource;
         }
-        for (RongRTCAVInputStream stream : list) {
-            if (stream.getMediaType() == MediaType.AUDIO) {
+        for (RCRTCInputStream stream : list) {
+            if (stream.getMediaType() == RCRTCMediaType.AUDIO) {
                 streamResource.isHasAudio = true;
-            } else if (stream.getMediaType() == MediaType.VIDEO && stream.getTag().equals("screenshare") ) {
+            } else if (stream.getMediaType() == RCRTCMediaType.VIDEO && stream.getTag().equals("screenshare") ) {
                 streamResource.isHasScreen = true;
             } else {
                 streamResource.isHasVideo = true;
@@ -629,7 +630,7 @@ public class ClassRepository extends BaseRepository {
         return streamResource;
     }
 
-    private StreamResource getUnPublicStreamResource(String userId, List<RongRTCAVInputStream> list) {
+    private StreamResource getUnPublicStreamResource(String userId, List<RCRTCInputStream> list) {
         StreamResource streamResource = new StreamResource();
         streamResource.userId = userId;
         if (list == null) {
@@ -641,10 +642,10 @@ public class ClassRepository extends BaseRepository {
         streamResource.isHasVideo = true;
         streamResource.isHasScreen = true;
         streamResource.isHasVideo = true;
-        for (RongRTCAVInputStream stream : list) {
-            if (stream.getMediaType() == MediaType.AUDIO) {
+        for (RCRTCInputStream stream : list) {
+            if (stream.getMediaType() == RCRTCMediaType.AUDIO) {
                 streamResource.isHasAudio = false;
-            } else if (stream.getMediaType() == MediaType.VIDEO && stream.getTag().equals("screenshare") ) {
+            } else if (stream.getMediaType() == RCRTCMediaType.VIDEO && stream.getTag().equals("screenshare") ) {
                 streamResource.isHasScreen = false;
             } else {
                 streamResource.isHasVideo = false;

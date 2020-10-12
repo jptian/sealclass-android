@@ -4,6 +4,8 @@ import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import cn.rongcloud.rtc.api.RCRTCEngine;
+import cn.rongcloud.sealclass.common.ResultUICallback;
 import java.util.HashMap;
 
 import cn.rongcloud.sealclass.api.SealClassApi;
@@ -50,6 +52,7 @@ public class UserRepository extends BaseRepository {
                 if (result != null && !TextUtils.isEmpty(result.getAppkey())) {
                     IMManager.init(Utils.getContext(), result.getAppkey());
                 }
+                RCRTCEngine.getInstance().unInit();
                 // 设置 http请求 的用户认证
                 String authorization = result.getAuthorization();
                 getHttpManager().setAuthHeader(authorization);
@@ -58,11 +61,12 @@ public class UserRepository extends BaseRepository {
                 imManager.login(result.getImToken(), new ResultCallback<String>() {
                     @Override
                     public void onSuccess(String s) {
+                        RtcManager.getInstance().initRTCEngine();
                         RtcManager.getInstance().setVideoResolution(VideoResolution.getById(selectedResolutionId));
                         // 进入音视频房间
-                        RtcManager.getInstance().joinRtcRoom(result.getRoomId(), new ResultCallback<String>() {
+                        RtcManager.getInstance().joinRtcRoom(result.getRoomId(), new ResultUICallback<String>() {
                             @Override
-                            public void onSuccess(String roomId) {
+                            public void onUISuccess(String roomId) {
                                 SLog.d("class_rtc", "joinroom =>" + roomId);
                                 UserInfo loginUser = result.getUserInfo();
                                 if (loginUser != null) {
@@ -75,7 +79,7 @@ public class UserRepository extends BaseRepository {
                             }
 
                             @Override
-                            public void onFail(int errorCode) {
+                            public void onUIFail(int errorCode) {
                                 SLog.d("class_rtc", "joinroom =>" + errorCode);
                                 if (callBack != null) {
                                     callBack.onFail(errorCode);

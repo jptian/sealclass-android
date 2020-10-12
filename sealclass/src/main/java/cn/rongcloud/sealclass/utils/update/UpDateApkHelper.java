@@ -11,13 +11,10 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.gson.JsonArray;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.IOException;
 
 import cn.rongcloud.rtc.media.http.HttpClient;
 import cn.rongcloud.rtc.media.http.Request;
@@ -90,11 +87,6 @@ public class UpDateApkHelper {
             @Override
             public void onFailure(int errorCode) {
                 Log.i(TAG, "onFailure() errorCode = " + errorCode);
-            }
-
-            @Override
-            public void onError(IOException exception) {
-                Log.i(TAG, "onFailure() onError = " + exception);
             }
         });
     }

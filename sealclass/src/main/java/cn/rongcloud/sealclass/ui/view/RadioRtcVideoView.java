@@ -4,14 +4,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.AttributeSet;
 
+import cn.rongcloud.rtc.api.stream.RCRTCVideoView;
 import cn.rongcloud.rtc.core.EglRenderer;
 import cn.rongcloud.rtc.core.RendererCommon;
-import cn.rongcloud.rtc.engine.view.RongRTCVideoView;
 
 /**
  * 音视频显示的 VideoView 控件
  */
-public class RadioRtcVideoView extends RongRTCVideoView {
+public class RadioRtcVideoView extends RCRTCVideoView {
     public RadioRtcVideoView(Context context) {
         super(context);
         init();

@@ -28,6 +28,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import io.rong.imlib.RongIMClient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,9 +47,6 @@ import cn.rongcloud.sealclass.utils.TextMatchUtils;
 import cn.rongcloud.sealclass.utils.ToastUtils;
 import cn.rongcloud.sealclass.utils.update.UpDateApkHelper;
 import cn.rongcloud.sealclass.viewmodel.LoginViewModel;
-
-import static cn.rongcloud.rtc.utils.BuildInfo.MANDATORY_PERMISSIONS;
-
 
 /**
  * 登录界面
@@ -541,6 +539,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                         } else {
                             ToastUtils.showToast(requestState.getErrorCode().getMessageResId());
                         }
+                        //每次点击"加入房间"按钮都会从 app server 新获取userId,需要主动断开IM 连接
+                        if (requestState.getErrorCode() == ErrorCode.IM_ERROR ||
+                            requestState.getErrorCode() == ErrorCode.RTC_ERROR) {
+                            RongIMClient.getInstance().logout();
+                        }
                     }
                 }
             });
@@ -698,7 +701,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 //        userPhoneEt.setText("15810530021");
 //
 //        classIdEt.setText("11223344");
-        schoolIdEt.setText("emlZvv");
+          schoolIdEt.setText("emlZvv");
+        //schoolIdEt.setText("t8rfdx");
 //        passwordEt.setText("123456");
         //
         if (SessionManager.getInstance().contains(CacheConts.SP_PHONE_KEY)) {

@@ -12,8 +12,6 @@ import androidx.multidex.MultiDexApplication;
 import java.util.Iterator;
 import java.util.List;
 
-import cn.rongcloud.rtc.CenterManager;
-import cn.rongcloud.sealclass.im.IMManager;
 import cn.rongcloud.sealclass.utils.ClassNotificationService;
 import cn.rongcloud.sealclass.utils.SessionManager;
 import cn.rongcloud.sealclass.utils.Utils;
@@ -142,17 +140,12 @@ public class SealClassApp extends MultiDexApplication {
         } else {
             if (isActive) {
                 isActive = false;
-                //AppBackground
-                if (CenterManager.getInstance().isInRoom()) {
-                    startService(new Intent(this, ClassNotificationService.class));
-                }
+                startService(new Intent(this, ClassNotificationService.class));
             }
         }
     }
 
     private void stopNotificationService() {
-        if (CenterManager.getInstance().isInRoom()) {
-            stopService(new Intent(SealClassApp.this, ClassNotificationService.class));
-        }
+        stopService(new Intent(SealClassApp.this, ClassNotificationService.class));
     }
 }

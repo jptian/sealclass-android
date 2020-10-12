@@ -1,38 +1,35 @@
 package cn.rongcloud.sealclass.rtc;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import android.os.Handler;
+import android.util.Log;
+import cn.rongcloud.rtc.api.RCRTCConfig.Builder;
+import cn.rongcloud.rtc.api.RCRTCEngine;
+import cn.rongcloud.rtc.api.RCRTCLocalUser;
+import cn.rongcloud.rtc.api.RCRTCRemoteUser;
+import cn.rongcloud.rtc.api.RCRTCRoom;
+import cn.rongcloud.rtc.api.callback.IRCRTCResultCallback;
+import cn.rongcloud.rtc.api.callback.IRCRTCResultDataCallback;
+import cn.rongcloud.rtc.api.callback.IRCRTCRoomEventsListener;
+import cn.rongcloud.rtc.api.callback.IRCRTCStatusReportListener;
+import cn.rongcloud.rtc.api.report.StatusBean;
+import cn.rongcloud.rtc.api.report.StatusReport;
+import cn.rongcloud.rtc.api.stream.RCRTCInputStream;
+import cn.rongcloud.rtc.api.stream.RCRTCOutputStream;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoInputStream;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoStreamConfig;
+import cn.rongcloud.rtc.api.stream.RCRTCVideoView;
+import cn.rongcloud.rtc.base.RCRTCMediaType;
+import cn.rongcloud.rtc.base.RCRTCStreamType;
+import cn.rongcloud.rtc.base.RTCErrorCode;
+import cn.rongcloud.sealclass.common.ResultUICallback;
+import cn.rongcloud.sealclass.utils.Utils;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import cn.rongcloud.rtc.CenterManager;
-import cn.rongcloud.rtc.RTCErrorCode;
-import cn.rongcloud.rtc.RongRTCConfig;
-import cn.rongcloud.rtc.RongRTCEngine;
-import cn.rongcloud.rtc.callback.JoinRoomUICallBack;
-import cn.rongcloud.rtc.callback.RongRTCResultUICallBack;
-import cn.rongcloud.rtc.engine.report.StatusBean;
-import cn.rongcloud.rtc.engine.report.StatusReport;
-import cn.rongcloud.rtc.engine.view.RongRTCVideoView;
-import cn.rongcloud.rtc.events.RongRTCEventsListener;
-import cn.rongcloud.rtc.events.RongRTCStatusReportListener;
-import cn.rongcloud.rtc.room.RongRTCRoom;
-import cn.rongcloud.rtc.stream.MediaType;
-import cn.rongcloud.rtc.stream.local.RongRTCCapture;
-import cn.rongcloud.rtc.stream.local.RongRTCLocalSourceManager;
-import cn.rongcloud.rtc.stream.remote.RongRTCAVInputStream;
-import cn.rongcloud.rtc.user.RongRTCLocalUser;
-import cn.rongcloud.rtc.user.RongRTCRemoteUser;
 import cn.rongcloud.sealclass.common.ErrorCode;
-import cn.rongcloud.sealclass.common.ResultCallback;
 import cn.rongcloud.sealclass.model.Role;
 import cn.rongcloud.sealclass.utils.log.SLog;
-import io.rong.imlib.model.Message;
 
 /**
  * Rong RTC 语音业务封装
@@ -40,13 +37,15 @@ import io.rong.imlib.model.Message;
 public class RtcManager {
     private static final String TAG = RtcManager.class.getSimpleName();
     private static RtcManager instance;
-    private RongRTCRoom rongRTCRoom;
+    private RCRTCRoom rongRTCRoom;
     private RtcCallback rtcCallback;
+    private Handler UIHandler = null;
 
     //是否需要注册状态回调，目前仅调试打开
     private boolean needRegisteredStatusReportListener = false;
 
     private RtcManager() {
+        UIHandler = new android.os.Handler(Utils.getContext().getMainLooper());
     }
 
     public static RtcManager getInstance() {
@@ -59,6 +58,28 @@ public class RtcManager {
         }
 
         return instance;
+    }
+
+    /**
+     * 初始化 SDK
+     */
+    public void initRTCEngine(){
+        RCRTCEngine.getInstance().init(Utils.getContext(), Builder.create().build());
+    }
+
+    /**
+     * 取消初始化，释放资源
+     */
+    public void unInit(){
+        RCRTCEngine.getInstance().unInit();
+    }
+
+    public void getUIHandler(Runnable runnable) {
+        if(UIHandler != null){
+            UIHandler.post(runnable);
+        }else{
+            Log.e(TAG,"UIHandler = null .");
+        }
     }
 
     public void setRtcCallback(RtcCallback callBack) {
@@ -75,10 +96,10 @@ public class RtcManager {
      *
      * @param roomId
      */
-    public void joinRtcRoom(final String roomId, final ResultCallback<String> callback) {
-        RongRTCEngine.getInstance().joinRoom(roomId, new JoinRoomUICallBack() {
+    public void joinRtcRoom(final String roomId, final ResultUICallback<String> callback) {
+        RCRTCEngine.getInstance().joinRoom(roomId, new IRCRTCResultDataCallback<RCRTCRoom>() {
             @Override
-            protected void onUiSuccess(RongRTCRoom rtcRoom) {
+            public void onSuccess(RCRTCRoom rtcRoom) {
                 SLog.d(SLog.TAG_RTC, "Join room success" + rtcRoom);
                 rongRTCRoom = rtcRoom;
                 setRoomEventListener();
@@ -90,15 +111,20 @@ public class RtcManager {
             }
 
             @Override
-            protected void onUiFailed(RTCErrorCode rtcErrorCode) {
+            public void onFailed(final RTCErrorCode rtcErrorCode) {
                 SLog.e(SLog.TAG_RTC, "joinRtcRoom failed - " + rtcErrorCode.getReason());
                 if (callback != null) {
                     callback.onFail(ErrorCode.RTC_ERROR.getCode());
                 }
 
-                if (rtcCallback != null) {
-                    rtcCallback.onFail(rtcErrorCode);
-                }
+                getUIHandler(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (rtcCallback != null) {
+                            rtcCallback.onFail(rtcErrorCode);
+                        }
+                    }
+                });
             }
         });
     }
@@ -108,12 +134,12 @@ public class RtcManager {
      *
      * @param roomId
      */
-    public void quitRtcRoom(final String roomId, final ResultCallback<String> callback) {
+    public void quitRtcRoom(final String roomId, final ResultUICallback<String> callback) {
         removeRoomEventListener();
         unregisterStatusReportListener();
-        RongRTCEngine.getInstance().quitRoom(roomId, new RongRTCResultUICallBack() {
+        RCRTCEngine.getInstance().leaveRoom(new IRCRTCResultCallback() {
             @Override
-            public void onUiSuccess() {
+            public void onSuccess() {
                 SLog.d(SLog.TAG_RTC, "Quit room");
                 if (callback != null) {
                     callback.onSuccess(roomId);
@@ -121,22 +147,27 @@ public class RtcManager {
             }
 
             @Override
-            public void onUiFailed(RTCErrorCode rtcErrorCode) {
+            public void onFailed(final RTCErrorCode rtcErrorCode) {
                 SLog.e(SLog.TAG_RTC, "quitRtcRoom error - " + rtcErrorCode.getReason());
 
                 if (callback != null) {
                     callback.onFail(ErrorCode.RTC_ERROR.getCode());
                 }
 
-                if (rtcCallback != null) {
-                    rtcCallback.onFail(rtcErrorCode);
-                }
+                getUIHandler(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (rtcCallback != null) {
+                            rtcCallback.onFail(rtcErrorCode);
+                        }
+                    }
+                });
             }
         });
     }
 
 
-    public void startRtcChat(RongRTCVideoView view, final ResultCallback<Boolean> callback) {
+    public void startRtcChat(RCRTCVideoView view, final ResultUICallback<Boolean> callback) {
         if (getRTCRoom() == null) {
             SLog.e(SLog.TAG_RTC, "getRTCRoom() ==  " + getRTCRoom());
             if (callback != null) {
@@ -144,8 +175,7 @@ public class RtcManager {
             }
             return;
         }
-
-        RongRTCLocalUser localUser = getRTCRoom().getLocalUser();
+        RCRTCLocalUser localUser = getRTCRoom().getLocalUser();
         if (localUser == null) {
             SLog.e(SLog.TAG_RTC, "startRtcChat failed localUser is null ");
             if (callback != null) {
@@ -153,12 +183,17 @@ public class RtcManager {
             }
             return;
         }
+        //设置本地预览视图
+        RCRTCEngine.getInstance().getDefaultVideoStream().setVideoView(view);
+        //开始采集数据
+        RCRTCEngine.getInstance().getDefaultVideoStream().startCamera(null);
 
-        RongRTCCapture.getInstance().setRongRTCVideoView(view); //设置本地预览视图
-        RongRTCCapture.getInstance().startCameraCapture();       //开始采集数据
-        localUser.publishDefaultAVStream(new RongRTCResultUICallBack() {
+        List<RCRTCOutputStream> localAvStreams = new ArrayList<>();
+        localAvStreams.add(RCRTCEngine.getInstance().getDefaultAudioStream());
+        localAvStreams.add(RCRTCEngine.getInstance().getDefaultVideoStream());
+        localUser.publishStreams(localAvStreams, new IRCRTCResultCallback() {
             @Override
-            public void onUiSuccess() {
+            public void onSuccess() {
                 SLog.d(SLog.TAG_RTC, "Local publish avStream success");
                 if (callback != null) {
                     callback.onSuccess(true);
@@ -166,16 +201,21 @@ public class RtcManager {
             }
 
             @Override
-            public void onUiFailed(RTCErrorCode rtcErrorCode) {
+            public void onFailed(final RTCErrorCode rtcErrorCode) {
                 SLog.e(SLog.TAG_RTC, "startVoiceChat error - " + rtcErrorCode.getReason());
 
                 if (callback != null) {
                     callback.onFail(ErrorCode.RTC_ERROR.getCode());
                 }
 
-                if (rtcCallback != null) {
-                    rtcCallback.onFail(rtcErrorCode);
-                }
+                getUIHandler(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (rtcCallback != null) {
+                            rtcCallback.onFail(rtcErrorCode);
+                        }
+                    }
+                });
             }
         });
     }
@@ -183,39 +223,43 @@ public class RtcManager {
     /**
      * 停止聊天
      */
-    public void stopRTCChat(final ResultCallback<Boolean> callback) {
+    public void stopRTCChat(final ResultUICallback<Boolean> callback) {
         if (getRTCRoom() == null) {
             return;
         }
-        RongRTCCapture.getInstance().setRongRTCVideoView(null); //设置本地预览视图
-        RongRTCCapture.getInstance().stopCameraCapture();
-        RongRTCLocalUser localUser = getRTCRoom().getLocalUser();
+        //设置本地预览视图
+        RCRTCEngine.getInstance().getDefaultVideoStream().setVideoView(null);
+        //开始采集数据
+        RCRTCEngine.getInstance().getDefaultVideoStream().stopCamera();
+        RCRTCLocalUser localUser = getRTCRoom().getLocalUser();
         if (localUser == null) {
             SLog.e(SLog.TAG_RTC, "stopRTCChat failed localUser is null ");
             return;
         }
-
-        localUser.unpublishDefaultAVStream(new RongRTCResultUICallBack() {
+        localUser.unpublishStreams(localUser.getStreams(), new IRCRTCResultCallback() {
             @Override
-            public void onUiSuccess() {
+            public void onSuccess() {
                 if (callback != null) {
                     callback.onSuccess(true);
                 }
             }
 
             @Override
-            public void onUiFailed(RTCErrorCode rtcErrorCode) {
+            public void onFailed(final RTCErrorCode rtcErrorCode) {
                 SLog.e(SLog.TAG_RTC, "stopVoiceChat error - " + rtcErrorCode.getReason());
                 if (callback != null) {
                     callback.onFail(ErrorCode.RTC_ERROR.getCode());
                 }
-
-                if (rtcCallback != null) {
-                    rtcCallback.onFail(rtcErrorCode);
-                }
+                getUIHandler(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (rtcCallback != null) {
+                            rtcCallback.onFail(rtcErrorCode);
+                        }
+                    }
+                });
             }
         });
-
     }
 
 
@@ -223,30 +267,47 @@ public class RtcManager {
      * 是否使用语音聊天
      */
     public void setLocalMicEnable(boolean enable) {
-        RongRTCCapture.getInstance().muteMicrophone(!enable);
+        if(RCRTCEngine.getInstance().getDefaultAudioStream()!=null){
+            RCRTCEngine.getInstance().getDefaultAudioStream().setMicrophoneDisable(!enable);
+        }
     }
 
     /**
      * 是否使用视频聊天
      */
     public void setLocalVideoEnable(boolean enable) {
-        RongRTCCapture.getInstance().muteLocalVideo(!enable);
+        if(RCRTCEngine.getInstance().getDefaultVideoStream()!=null){
+            if (enable) {
+                RCRTCEngine.getInstance().getDefaultVideoStream().startCamera(null);
+            } else {
+                RCRTCEngine.getInstance().getDefaultVideoStream().stopCamera();
+            }
+        }
     }
 
-    public boolean isMuteVideo(){
-        return RongRTCCapture.getInstance().isMuteVideo();
+    public boolean isMuteVideo() {
+        if (RCRTCEngine.getInstance().getDefaultVideoStream() != null) {
+            return RCRTCEngine.getInstance().getDefaultVideoStream().isMute();
+        }
+        return false;
     }
 
-    public boolean isInRoom(){
-        return CenterManager.getInstance().isInRoom();
+    public void startCapture() {
+        if (RCRTCEngine.getInstance().getDefaultVideoStream() != null) {
+            RCRTCEngine.getInstance().getDefaultVideoStream().startCamera(null);
+        }
     }
 
-    public void startCapture(){
-        RongRTCLocalSourceManager.getInstance().startCapture();
+    public void stopCapture(){
+        if (RCRTCEngine.getInstance().getDefaultVideoStream() != null) {
+            RCRTCEngine.getInstance().getDefaultVideoStream().stopCamera();
+        }
     }
 
     public void switchCamera() {
-        RongRTCCapture.getInstance().switchCamera();
+        if(RCRTCEngine.getInstance().getDefaultVideoStream()!=null){
+            RCRTCEngine.getInstance().getDefaultVideoStream().switchCamera(null);
+        }
     }
 
     /**
@@ -254,7 +315,7 @@ public class RtcManager {
      * @param enabled
      */
     public void setEnableSpeakerphone(boolean enabled) {
-        RongRTCCapture.getInstance().setEnableSpeakerphone(enabled);
+        RCRTCEngine.getInstance().enableSpeaker(enabled);
     }
 
 
@@ -262,55 +323,64 @@ public class RtcManager {
      * 房间静音设置
      * 目前没有逻辑用到该方法，如用到必须考虑订阅视频的大小流问题
      */
-    public void muteRoomVoice(boolean mute, final ResultCallback<Boolean> callback) {
+    public void muteRoomVoice(boolean mute, final ResultUICallback<Boolean> callback) {
         if (getRTCRoom() == null) {
             return;
         }
-        Map<String, RongRTCRemoteUser> remoteUserMap = getRTCRoom().getRemoteUsers();
-        List<RongRTCAVInputStream> receiveVoiceSteamList = new ArrayList<>();
-        Collection<RongRTCRemoteUser> remoteUsers = remoteUserMap.values();
-        for (RongRTCRemoteUser remoteUser : remoteUsers) {
-            List<RongRTCAVInputStream> remoteAVStreams = remoteUser.getRemoteAVStreams();
-            for (RongRTCAVInputStream stream : remoteAVStreams) {
-                if (stream.getMediaType() == MediaType.AUDIO) {
-                    receiveVoiceSteamList.addAll(remoteUser.getRemoteAVStreams());
+        List<RCRTCRemoteUser> remoteUserList= getRTCRoom().getRemoteUsers();
+        List<RCRTCInputStream> receiveVoiceSteamList = new ArrayList<>();
+        for (RCRTCRemoteUser remoteUser : remoteUserList) {
+            List<RCRTCInputStream> remoteAVStreams = remoteUser.getStreams();
+            for (RCRTCInputStream stream : remoteAVStreams) {
+                if (stream.getMediaType() == RCRTCMediaType.AUDIO) {
+                    receiveVoiceSteamList.addAll(remoteUser.getStreams());
                 }
             }
         }
 
         if (receiveVoiceSteamList.size() > 0) {
             if (mute) {
-                getRTCRoom().unsubscribeAVStream(receiveVoiceSteamList, new RongRTCResultUICallBack() {
+                getRTCRoom().getLocalUser().unsubscribeStreams(receiveVoiceSteamList, new IRCRTCResultCallback() {
                     @Override
-                    public void onUiSuccess() {
+                    public void onSuccess() {
                         if (callback != null) {
                             callback.onSuccess(true);
                         }
                     }
 
                     @Override
-                    public void onUiFailed(RTCErrorCode rtcErrorCode) {
+                    public void onFailed(final RTCErrorCode rtcErrorCode) {
                         SLog.e(SLog.TAG_RTC, "muteRoomVoice error - " + rtcErrorCode.getReason());
-                        if (rtcCallback != null) {
-                            rtcCallback.onFail(rtcErrorCode);
-                        }
+                        getUIHandler(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (rtcCallback != null) {
+                                    rtcCallback.onFail(rtcErrorCode);
+                                }
+                            }
+                        });
                     }
                 });
             } else {
-                getRTCRoom().subscribeAvStream(receiveVoiceSteamList, new RongRTCResultUICallBack() {
+                getRTCRoom().getLocalUser().subscribeStreams(receiveVoiceSteamList, new IRCRTCResultCallback() {
                     @Override
-                    public void onUiSuccess() {
+                    public void onSuccess() {
                         if (callback != null) {
                             callback.onSuccess(false);
                         }
                     }
 
                     @Override
-                    public void onUiFailed(RTCErrorCode rtcErrorCode) {
+                    public void onFailed(final RTCErrorCode rtcErrorCode) {
                         SLog.e(SLog.TAG_RTC, "muteRoomVoice error - " + rtcErrorCode.getReason());
-                        if (rtcCallback != null) {
-                            rtcCallback.onFail(rtcErrorCode);
-                        }
+                        getUIHandler(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (rtcCallback != null) {
+                                    rtcCallback.onFail(rtcErrorCode);
+                                }
+                            }
+                        });
                     }
                 });
             }
@@ -322,31 +392,30 @@ public class RtcManager {
     /**
      * 订阅所有当前在房间发布资源的用户
      */
-    public void subscribeAll(HashMap<String, RongRTCVideoView> videoViews, final ResultCallback<Boolean> callback) {
+    public void subscribeAll(HashMap<String, RCRTCVideoView> videoViews, final ResultUICallback<Boolean> callback) {
         if (getRTCRoom() != null) {
-            Map<String, RongRTCRemoteUser> remoteUserMap = getRTCRoom().getRemoteUsers();
-            List<RongRTCAVInputStream> receiveSteamList = new ArrayList<>();
-            Collection<RongRTCRemoteUser> remoteUsers = remoteUserMap.values();
-            for (RongRTCRemoteUser remoteUser : remoteUsers) {
-                for (RongRTCAVInputStream inputStream : remoteUser.getRemoteAVStreams()) {
-                    if (inputStream.getMediaType() == MediaType.VIDEO) {
-                        inputStream.setSimulcast("2");//2:小流
-                        inputStream.setRongRTCVideoView(videoViews.get(remoteUser.getUserId()));
+            List<RCRTCRemoteUser> remoteUserList = getRTCRoom().getRemoteUsers();
+            List<RCRTCInputStream> receiveSteamList = new ArrayList<>();
+            for (RCRTCRemoteUser remoteUser : remoteUserList) {
+                for (RCRTCInputStream inputStream : remoteUser.getStreams()) {
+                    if (inputStream.getMediaType() == RCRTCMediaType.VIDEO) {
+                        ((RCRTCVideoInputStream)inputStream).setStreamType(RCRTCStreamType.TINY);
+                        ((RCRTCVideoInputStream)inputStream).setVideoView(videoViews.get(remoteUser.getUserId()));
                     }
                 }
-                receiveSteamList.addAll(remoteUser.getRemoteAVStreams());
+                receiveSteamList.addAll(remoteUser.getStreams());
             }
             if (receiveSteamList.size() > 0) {
-                getRTCRoom().subscribeAvStream(receiveSteamList, new RongRTCResultUICallBack() {
+                getRTCRoom().getLocalUser().subscribeStreams(receiveSteamList, new IRCRTCResultCallback() {
                     @Override
-                    public void onUiSuccess() {
+                    public void onSuccess() {
                         if (callback != null) {
                             callback.onSuccess(true);
                         }
                     }
 
                     @Override
-                    public void onUiFailed(RTCErrorCode rtcErrorCode) {
+                    public void onFailed(RTCErrorCode rtcErrorCode) {
                         if (callback != null) {
                             callback.onFail(ErrorCode.RTC_ERROR.getCode());
                         }
@@ -357,43 +426,42 @@ public class RtcManager {
 
     }
 
-    public void subscribe(String userId, RongRTCVideoView videoView, int role, final ResultCallback<String> callback) {
-        RongRTCRemoteUser remoteUser = getRTCRoom().getRemoteUser(userId);
+    public void subscribe(String userId, RCRTCVideoView videoView, int role, final ResultUICallback<String> callback) {
+        RCRTCRemoteUser remoteUser = getRTCRoom().getRemoteUser(userId);
         subscribe(remoteUser, videoView, null, role, callback);
     }
 
-    public void subscribe(String userId, RongRTCVideoView videoView, RongRTCVideoView screenShareView, int role, final ResultCallback<String> callback) {
-        RongRTCRemoteUser remoteUser = getRTCRoom().getRemoteUser(userId);
+    public void subscribe(String userId, RCRTCVideoView videoView, RCRTCVideoView screenShareView, int role, final ResultUICallback<String> callback) {
+        RCRTCRemoteUser remoteUser = getRTCRoom().getRemoteUser(userId);
         subscribe(remoteUser, videoView, screenShareView, role,callback);
     }
 
     // 订阅单人, 视频只订阅 video
-    private void subscribe(final RongRTCRemoteUser remoteUser, RongRTCVideoView videoView, RongRTCVideoView screenShareView, int role, final ResultCallback<String> callback) {
-        if (getRTCRoom() == null || remoteUser == null || remoteUser.getRemoteAVStreams() == null) {
+    private void subscribe(final RCRTCRemoteUser remoteUser, RCRTCVideoView videoView, RCRTCVideoView screenShareView, int role, final ResultUICallback<String> callback) {
+        if (getRTCRoom() == null || remoteUser == null || remoteUser.getStreams() == null) {
             return;
         }
 
-        for (RongRTCAVInputStream inputStream : remoteUser.getRemoteAVStreams()) {
-            if (inputStream.getMediaType() == MediaType.VIDEO) {
+        for (RCRTCInputStream inputStream : remoteUser.getStreams()) {
+            if (inputStream.getMediaType() == RCRTCMediaType.VIDEO) {
                 SLog.d(SLog.TAG_RTC, "Set remote video view , user = " + remoteUser.getUserId());
                 if (inputStream.getTag().equals("screenshare") && screenShareView != null) {
-                    inputStream.setRongRTCVideoView(screenShareView);
+                    ((RCRTCVideoInputStream)inputStream).setVideoView(screenShareView);
                 } else {
-                    String simulcast = "1";//2:小流
+                    RCRTCStreamType rcrtcStreamType=RCRTCStreamType.TINY;
                     if (role == Role.STUDENT.getValue()) {
-                        simulcast = "2";
+                        rcrtcStreamType=RCRTCStreamType.NORMAL;
                     } else {
-                        simulcast = "1";
+                        rcrtcStreamType=RCRTCStreamType.TINY;
                     }
-                    inputStream.setSimulcast(simulcast);
-                    inputStream.setRongRTCVideoView(videoView);
+                    ((RCRTCVideoInputStream)inputStream).setStreamType(rcrtcStreamType);
+                    ((RCRTCVideoInputStream)inputStream).setVideoView(videoView);
                 }
             }
         }
-
-        remoteUser.subscribeAVStream(remoteUser.getRemoteAVStreams(), new RongRTCResultUICallBack() {
+        getRTCRoom().getLocalUser().subscribeStreams(remoteUser.getStreams(), new IRCRTCResultCallback() {
             @Override
-            public void onUiSuccess() {
+            public void onSuccess() {
                 SLog.d(SLog.TAG_RTC, "subscribeAvStream success,user = " + remoteUser.getUserId());
                 if (callback != null) {
                     callback.onSuccess(remoteUser.getUserId());
@@ -401,29 +469,32 @@ public class RtcManager {
             }
 
             @Override
-            public void onUiFailed(RTCErrorCode rtcErrorCode) {
+            public void onFailed(final RTCErrorCode rtcErrorCode) {
                 SLog.e(SLog.TAG_RTC, "subscribeAvStream error - " + rtcErrorCode.getReason());
 
                 if (callback != null) {
                     callback.onFail(ErrorCode.RTC_ERROR.getCode());
                 }
-
-                if (rtcCallback != null) {
-                    rtcCallback.onFail(rtcErrorCode);
-                }
+                getUIHandler(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (rtcCallback != null) {
+                            rtcCallback.onFail(rtcErrorCode);
+                        }
+                    }
+                });
             }
         });
-
     }
 
-    public void unSubscribe(final String userId, final ResultCallback<String> callback) {
-        RongRTCRemoteUser remoteUser = getRTCRoom().getRemoteUser(userId);
-        if (getRTCRoom() == null || remoteUser == null || remoteUser.getRemoteAVStreams() == null) {
+    public void unSubscribe(final String userId, final ResultUICallback<String> callback) {
+        RCRTCRemoteUser remoteUser = getRTCRoom().getRemoteUser(userId);
+        if (getRTCRoom() == null || remoteUser == null || remoteUser.getStreams() == null) {
             return;
         }
-        remoteUser.unsubscribeAVStream(remoteUser.getRemoteAVStreams(), new RongRTCResultUICallBack() {
+        getRTCRoom().getLocalUser().unsubscribeStreams(remoteUser.getStreams(), new IRCRTCResultCallback() {
             @Override
-            public void onUiSuccess() {
+            public void onSuccess() {
                 SLog.d(SLog.TAG_RTC, "unSubscribeAvStream success,user = " + userId);
                 if (callback != null) {
                     callback.onSuccess(userId);
@@ -431,7 +502,7 @@ public class RtcManager {
             }
 
             @Override
-            public void onUiFailed(RTCErrorCode rtcErrorCode) {
+            public void onFailed(RTCErrorCode rtcErrorCode) {
                 SLog.e(SLog.TAG_RTC, "unSubscribeAvStream error - " + rtcErrorCode.getReason());
 
                 if (callback != null) {
@@ -443,39 +514,38 @@ public class RtcManager {
                 }
             }
         });
-
     }
 
 
-    public void subscribeVideo(final String userId, RongRTCVideoView videoView, final ResultCallback<String> callback) {
-        subscribeStream(userId, MediaType.VIDEO, false, videoView, callback);
+    public void subscribeVideo(final String userId, RCRTCVideoView videoView, final ResultUICallback<String> callback) {
+        subscribeStream(userId, RCRTCMediaType.VIDEO, false, videoView, callback);
     }
 
 
-    public void unSubscribeVideo(String userId, final ResultCallback<String> callback) {
-        unSubscribeStream(userId, MediaType.VIDEO, false, callback);
+    public void unSubscribeVideo(String userId, final ResultUICallback<String> callback) {
+        unSubscribeStream(userId, RCRTCMediaType.VIDEO, false, callback);
     }
 
-    public void subscribeAudio(final String userId, final ResultCallback<String> callback) {
-        subscribeStream(userId, MediaType.AUDIO, false, null, callback);
-    }
-
-
-    public void unSubscribeAudio(String userId, final ResultCallback<String> callback) {
-        unSubscribeStream(userId, MediaType.AUDIO, false, callback);
-    }
-
-    public void subscribeScreen(String userId, RongRTCVideoView videoView, final ResultCallback<String> callback) {
-        subscribeStream(userId, MediaType.VIDEO, true, videoView, callback);
-
-    }
-
-    public void unSubscribeScreen(String userId, final ResultCallback<String> callback) {
-        unSubscribeStream(userId, MediaType.VIDEO, true, callback);
+    public void subscribeAudio(final String userId, final ResultUICallback<String> callback) {
+        subscribeStream(userId, RCRTCMediaType.AUDIO, false, null, callback);
     }
 
 
-    private void subscribeStream(final String userId, final MediaType type, boolean isScreenShare, RongRTCVideoView videoView, final ResultCallback<String> callback) {
+    public void unSubscribeAudio(String userId, final ResultUICallback<String> callback) {
+        unSubscribeStream(userId, RCRTCMediaType.AUDIO, false, callback);
+    }
+
+    public void subscribeScreen(String userId, RCRTCVideoView videoView, final ResultUICallback<String> callback) {
+        subscribeStream(userId, RCRTCMediaType.VIDEO, true, videoView, callback);
+
+    }
+
+    public void unSubscribeScreen(String userId, final ResultUICallback<String> callback) {
+        unSubscribeStream(userId, RCRTCMediaType.VIDEO, true, callback);
+    }
+
+
+    private void subscribeStream(final String userId, final RCRTCMediaType type, boolean isScreenShare, RCRTCVideoView videoView, final ResultUICallback<String> callback) {
         if (getRTCRoom() == null) {
             SLog.e(SLog.TAG_RTC, type + " subscribeStream failed , room = " + getRTCRoom());
             if (callback != null) {
@@ -483,9 +553,9 @@ public class RtcManager {
             }
             return;
         }
-        final RongRTCRemoteUser remoteUser = getRTCRoom().getRemoteUser(userId);
+        final RCRTCRemoteUser remoteUser = getRTCRoom().getRemoteUser(userId);
 
-        if (remoteUser == null || remoteUser.getRemoteAVStreams() == null) {
+        if (remoteUser == null || remoteUser.getStreams() == null) {
             SLog.e(SLog.TAG_RTC, type + "subscribeStream failed ,  room = " + getRTCRoom() + "userId = " + userId + "，remoteUser  = " + remoteUser);
             if (callback != null) {
                 callback.onFail(ErrorCode.RTC_ERROR.getCode());
@@ -493,22 +563,22 @@ public class RtcManager {
             return;
         }
 
-        ArrayList<RongRTCAVInputStream> inputStreams = new ArrayList<>();
-        for (RongRTCAVInputStream inputStream : remoteUser.getRemoteAVStreams()) {
-            if (type == MediaType.VIDEO && inputStream.getMediaType() == MediaType.VIDEO) {
+        ArrayList<RCRTCInputStream> inputStreams = new ArrayList<>();
+        for (RCRTCInputStream inputStream : remoteUser.getStreams()) {
+            if (type == RCRTCMediaType.VIDEO && inputStream.getMediaType() == RCRTCMediaType.VIDEO) {
                 if (isScreenShare && inputStream.getTag().equals("screenshare")) {
-                        inputStream.setRongRTCVideoView(videoView);
+                    ((RCRTCVideoInputStream)inputStream).setVideoView(videoView);
                         SLog.d(SLog.TAG_RTC, "subscribeStream, Set remote video screen share view ,  user = " + remoteUser.getUserId() + ",videoView = " + videoView);
                         inputStreams.add(inputStream);
 
                 } else if (!isScreenShare && !inputStream.getTag().equals("screenshare")) {
-                        inputStream.setRongRTCVideoView(videoView);
-                        inputStream.setSimulcast("2");//2:小流
-                        SLog.d(SLog.TAG_RTC, "subscribeStream, Set remote video view , user = " + remoteUser.getUserId() + ",videoView = " + videoView);
-                        inputStreams.add(inputStream);
+                    ((RCRTCVideoInputStream)inputStream).setVideoView(videoView);
+                    ((RCRTCVideoInputStream)inputStream).setStreamType(RCRTCStreamType.TINY);
+                    SLog.d(SLog.TAG_RTC, "subscribeStream, Set remote video view , user = " + remoteUser.getUserId() + ",videoView = " + videoView);
+                    inputStreams.add(inputStream);
                 }
 
-            } else if (type == MediaType.AUDIO && inputStream.getMediaType() == MediaType.AUDIO) {
+            } else if (type == RCRTCMediaType.AUDIO && inputStream.getMediaType() == RCRTCMediaType.AUDIO) {
                 inputStreams.add(inputStream);
             }
 
@@ -523,9 +593,9 @@ public class RtcManager {
         }
 
         SLog.d(SLog.TAG_RTC, "subscribeStream, inputStreams = " + inputStreams);
-        remoteUser.subscribeAVStream(inputStreams, new RongRTCResultUICallBack() {
+        getRTCRoom().getLocalUser().subscribeStreams(inputStreams, new IRCRTCResultCallback() {
             @Override
-            public void onUiSuccess() {
+            public void onSuccess() {
                 SLog.d(SLog.TAG_RTC, "subscribeStream " + type + " success,user = " + userId);
                 if (callback != null) {
                     callback.onSuccess(userId);
@@ -533,7 +603,7 @@ public class RtcManager {
             }
 
             @Override
-            public void onUiFailed(RTCErrorCode rtcErrorCode) {
+            public void onFailed(RTCErrorCode rtcErrorCode) {
                 SLog.e(SLog.TAG_RTC, "subscribeStream " + type + " error - " + rtcErrorCode.getReason());
 
                 if (callback != null) {
@@ -545,11 +615,10 @@ public class RtcManager {
                 }
             }
         });
-
     }
 
 
-    private void unSubscribeStream(final String userId, final MediaType type, boolean isScreenShare, final ResultCallback<String> callback) {
+    private void unSubscribeStream(final String userId, final RCRTCMediaType type, boolean isScreenShare, final ResultUICallback<String> callback) {
         if (getRTCRoom() == null) {
             SLog.e(SLog.TAG_RTC, "unSubscribeStream failed , room = " + getRTCRoom());
             if (callback != null) {
@@ -557,9 +626,9 @@ public class RtcManager {
             }
             return;
         }
-        RongRTCRemoteUser remoteUser = getRTCRoom().getRemoteUser(userId);
+        RCRTCRemoteUser remoteUser = getRTCRoom().getRemoteUser(userId);
 
-        if (remoteUser == null || remoteUser.getRemoteAVStreams() == null) {
+        if (remoteUser == null || remoteUser.getStreams() == null) {
             SLog.e(SLog.TAG_RTC, "unSubscribeStream failed , remoteUser  = " + remoteUser);
             if (callback != null) {
                 callback.onFail(ErrorCode.RTC_ERROR.getCode());
@@ -567,24 +636,24 @@ public class RtcManager {
             return;
         }
 
-        ArrayList<RongRTCAVInputStream> inputStreams = new ArrayList<>();
-        for (RongRTCAVInputStream inputStream : remoteUser.getRemoteAVStreams()) {
-            if (type == MediaType.VIDEO && inputStream.getMediaType() == MediaType.VIDEO) {
+        ArrayList<RCRTCInputStream> inputStreams = new ArrayList<>();
+        for (RCRTCInputStream inputStream : remoteUser.getStreams()) {
+            if (type == RCRTCMediaType.VIDEO && inputStream.getMediaType() == RCRTCMediaType.VIDEO) {
                 if (isScreenShare && inputStream.getTag().equals("screenshare")) {
                     inputStreams.add(inputStream);
                 } else  if (!isScreenShare && !inputStream.getTag().equals("screenshare")) {
                     inputStreams.add(inputStream);
                 }
 
-            } else if (type == MediaType.AUDIO && inputStream.getMediaType() == MediaType.AUDIO) {
+            } else if (type == RCRTCMediaType.AUDIO && inputStream.getMediaType() == RCRTCMediaType.AUDIO) {
                 inputStreams.add(inputStream);
             }
         }
 
         SLog.e(SLog.TAG_RTC, "unSubscribeStream , inputStreams  = " + inputStreams);
-        remoteUser.unsubscribeAVStream(inputStreams, new RongRTCResultUICallBack() {
+        getRTCRoom().getLocalUser().unsubscribeStreams(inputStreams, new IRCRTCResultCallback() {
             @Override
-            public void onUiSuccess() {
+            public void onSuccess() {
                 SLog.d(SLog.TAG_RTC, "unSubscribeStream  " + type + " success,user = " + userId);
                 if (callback != null) {
                     callback.onSuccess(userId);
@@ -592,7 +661,7 @@ public class RtcManager {
             }
 
             @Override
-            public void onUiFailed(RTCErrorCode rtcErrorCode) {
+            public void onFailed(RTCErrorCode rtcErrorCode) {
                 SLog.e(SLog.TAG_RTC, "unSubscribeStream  " + type + " error - " + rtcErrorCode.getReason());
 
                 if (callback != null) {
@@ -604,24 +673,22 @@ public class RtcManager {
                 }
             }
         });
-
     }
 
     /**
      * 订阅大流
      */
     public void exchangeStreamToNormalStream(String userid) {
-        Map<String, RongRTCRemoteUser> remoteUserMap = getRTCRoom().getRemoteUsers();
-        RongRTCRemoteUser remoteUser = remoteUserMap.get(userid);
+        RCRTCRemoteUser remoteUser = getRTCRoom().getRemoteUser(userid);
         if (remoteUser != null) {
-            remoteUser.exchangeStreamToNormalStream(new RongRTCResultUICallBack() {
+            remoteUser.switchToNormalStream(new IRCRTCResultCallback() {
                 @Override
-                public void onUiSuccess() {
+                public void onSuccess() {
                     SLog.d(SLog.TAG_RTC, "exchangeStreamToNormalStream->onUiSuccess.");
                 }
 
                 @Override
-                public void onUiFailed(RTCErrorCode rtcErrorCode) {
+                public void onFailed(RTCErrorCode rtcErrorCode) {
                     SLog.e(SLog.TAG_RTC, "exchangeStreamToNormalStream->onUiFailed rtcErrorCode :" + rtcErrorCode.getValue());
                 }
             });
@@ -634,17 +701,16 @@ public class RtcManager {
      * 订阅小流
      */
     public void exchangeStreamToTinyStream(String userid){
-        Map<String, RongRTCRemoteUser> remoteUserMap = getRTCRoom().getRemoteUsers();
-        RongRTCRemoteUser remoteUser = remoteUserMap.get(userid);
+        RCRTCRemoteUser remoteUser = getRTCRoom().getRemoteUser(userid);
         if (remoteUser != null) {
-            remoteUser.exchangeStreamToTinyStream(new RongRTCResultUICallBack() {
+            remoteUser.switchToTinyStream(new IRCRTCResultCallback() {
                 @Override
-                public void onUiSuccess() {
+                public void onSuccess() {
                     SLog.d(SLog.TAG_RTC, "exchangeStreamToTinyStream->onUiSuccess.");
                 }
 
                 @Override
-                public void onUiFailed(RTCErrorCode rtcErrorCode) {
+                public void onFailed(RTCErrorCode rtcErrorCode) {
                     SLog.e(SLog.TAG_RTC, "exchangeStreamToTinyStream->onUiFailed rtcErrorCode :" + rtcErrorCode.getValue());
                 }
             });
@@ -653,7 +719,7 @@ public class RtcManager {
         }
     }
 
-    private RongRTCRoom getRTCRoom() {
+    private RCRTCRoom getRTCRoom() {
         return rongRTCRoom;
     }
 
@@ -662,7 +728,7 @@ public class RtcManager {
     private void setRoomEventListener() {
         if (getRTCRoom() != null) {
             SLog.d(SLog.TAG_RTC, "Set room event listener");
-            getRTCRoom().registerEventsListener(rtcEventsListener);
+            getRTCRoom().registerRoomListener(rtcEventsListener);
         }
     }
 
@@ -670,34 +736,31 @@ public class RtcManager {
     private void removeRoomEventListener() {
         if (getRTCRoom() != null) {
             SLog.d(SLog.TAG_RTC, "Remove room event listener");
-            getRTCRoom().unregisterEventsListener(rtcEventsListener);
+            getRTCRoom().unregisterRoomListener();
         }
     }
 
     //注册房间统计信息监听
     private void registerStatusReportListener() {
-        if (getRTCRoom() != null && needRegisteredStatusReportListener) {
-            getRTCRoom().registerStatusReportListener(statusReportListener);
+        if (needRegisteredStatusReportListener) {
+            RCRTCEngine.getInstance().registerStatusReportListener(statusReportListener);
         }
     }
 
     //取消注册房间统计信息监听
     private void unregisterStatusReportListener() {
-        if (getRTCRoom() != null && needRegisteredStatusReportListener) {
-            getRTCRoom().unregisterStatusReportListener(statusReportListener);
-        }
+        RCRTCEngine.getInstance().unregisterStatusReportListener();
     }
 
 
-    private Map<String, List<RongRTCAVInputStream>> getRemoteUsersInfo() {
-        Map<String, List<RongRTCAVInputStream>> userIdInfo = new HashMap<>();
+    private Map<String, List<RCRTCInputStream>> getRemoteUsersInfo() {
+        Map<String, List<RCRTCInputStream>> userIdInfo = new HashMap<>();
         if (getRTCRoom() != null) {
-            Collection<RongRTCRemoteUser> values = getRTCRoom().getRemoteUsers().values();
-            if (values != null && values.size() > 0) {
-                for (RongRTCRemoteUser user : values) {
+            if (getRTCRoom().getRemoteUsers().size() > 0) {
+                for (RCRTCRemoteUser user : getRTCRoom().getRemoteUsers()) {
                     SLog.d(SLog.TAG_RTC, "remoteuser=" + user);
                     if (user != null) {
-                        userIdInfo.put(user.getUserId(), user.getRemoteAVStreams());
+                        userIdInfo.put(user.getUserId(), user.getStreams());
                     }
                 }
             }
@@ -705,142 +768,172 @@ public class RtcManager {
         return userIdInfo;
     }
 
-
-    private static RongRTCStatusReportListener statusReportListener=new RongRTCStatusReportListener() {
+    private IRCRTCStatusReportListener statusReportListener =new IRCRTCStatusReportListener() {
         @Override
         public void onAudioReceivedLevel(HashMap<String, String> hashMap) {
+            super.onAudioReceivedLevel(hashMap);
         }
 
         @Override
         public void onAudioInputLevel(String s) {
+            super.onAudioInputLevel(s);
         }
 
         @Override
-        public void onConnectionStats(StatusReport statusReport) {
-            if (statusReport != null) {
-                HashMap<String, StatusBean> map = statusReport.statusVideoRcvs;
-                if (map != null && map.size() > 0) {
-                    StatusBean bean = null;
-                    for (Map.Entry<String, StatusBean> entry : map.entrySet()) {
-                        bean = entry.getValue();
-                        SLog.d("BUGTAGS", "id :" + (bean.isSend ? "本地" : bean.id) + " , WxH:" + bean.frameWidth + " x " + bean.frameHeight + " ,bitRate : " + bean.bitRate + " , packetLostRate :" + bean.packetLostRate);
-                    }
-                }
+        public void onConnectionStats(final StatusReport statusReport) {
+            super.onConnectionStats(statusReport);
+            getUIHandler(new Runnable() {
+                @Override
+                public void run() {
+                    if (statusReport != null) {
+                        HashMap<String, StatusBean> map = statusReport.statusVideoRcvs;
+                        if (map != null && map.size() > 0) {
+                            StatusBean bean = null;
+                            for (Map.Entry<String, StatusBean> entry : map.entrySet()) {
+                                bean = entry.getValue();
+                                SLog.d("BUGTAGS", "id :" + (bean.isSend ? "本地" : bean.id) + " , WxH:" + bean.frameWidth + " x " + bean.frameHeight + " ,bitRate : " + bean.bitRate + " , packetLostRate :" + bean.packetLostRate);
+                            }
+                        }
 
-                HashMap<String, StatusBean> statusVideoSends = statusReport.statusVideoSends;
-                if (map != null && statusVideoSends.size() > 0) {
-                    StatusBean videoSend = null;
-                    for (Map.Entry<String, StatusBean> entry : statusVideoSends.entrySet()) {
-                        videoSend = entry.getValue();
-                        SLog.d("BUGTAGS", "id : local" + ", WxH:" + videoSend.frameWidth + " x " + videoSend.frameHeight + " ,bitRate : " + videoSend.bitRate + " , packetLostRate :" + videoSend.packetLostRate);
+                        HashMap<String, StatusBean> statusVideoSends = statusReport.statusVideoSends;
+                        if (map != null && statusVideoSends.size() > 0) {
+                            StatusBean videoSend = null;
+                            for (Map.Entry<String, StatusBean> entry : statusVideoSends.entrySet()) {
+                                videoSend = entry.getValue();
+                                SLog.d("BUGTAGS", "id : local" + ", WxH:" + videoSend.frameWidth + " x " + videoSend.frameHeight + " ,bitRate : " + videoSend.bitRate + " , packetLostRate :" + videoSend.packetLostRate);
+                            }
+                        }
                     }
                 }
-            }
+            });
         }
     };
 
-    // 房间事件监听
-    private RongRTCEventsListener rtcEventsListener = new RongRTCEventsListener() {
+    private IRCRTCRoomEventsListener rtcEventsListener=new IRCRTCRoomEventsListener() {
+        @Override
+        public void onRemoteUserPublishResource(final RCRTCRemoteUser rcrtcRemoteUser, final List<RCRTCInputStream> list) {
+            SLog.d(SLog.TAG_RTC, "Remote user publish resource，user = " + rcrtcRemoteUser.getUserId() + "," + rtcCallback);
+            getUIHandler(new Runnable() {
+                @Override
+                public void run() {
+                    if (rtcCallback != null) {
+                        rtcCallback.onRemoteUserPublishResource(rcrtcRemoteUser.getUserId(), list);
+                    }
+                }
+            });
+        }
 
         @Override
-        public void onRemoteUserPublishResource(RongRTCRemoteUser rongRTCRemoteUser, List<RongRTCAVInputStream> list) {
-            SLog.d(SLog.TAG_RTC, "Remote user publish resource，user = " + rongRTCRemoteUser.getUserId() + "," + rtcCallback);
+        public void onRemoteUserMuteAudio(final RCRTCRemoteUser rcrtcRemoteUser, RCRTCInputStream rcrtcInputStream, final boolean b) {
+            SLog.d(SLog.TAG_RTC, "Remote User AudioStream Mute，user=" + rcrtcRemoteUser.getUserId() + ", mute = " + b + "," + rtcCallback);
+            getUIHandler(new Runnable() {
+                @Override
+                public void run() {
+                    if (rtcCallback != null) {
+                        rtcCallback.onRemoteUserAudioStreamMute(rcrtcRemoteUser.getUserId(), b);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onRemoteUserMuteVideo(final RCRTCRemoteUser rcrtcRemoteUser, RCRTCInputStream rcrtcInputStream, final boolean b) {
+            SLog.d(SLog.TAG_RTC, "Remote user video stream enable，user=" + rcrtcRemoteUser.getUserId() + ", Enabled = " + b + "," + rtcCallback);
+            getUIHandler(new Runnable() {
+                @Override
+                public void run() {
+                    if (rtcCallback != null) {
+                        rtcCallback.onRemoteUserVideoStreamEnabled(rcrtcRemoteUser.getUserId(), b);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onRemoteUserUnpublishResource(final RCRTCRemoteUser rcrtcRemoteUser, final List<RCRTCInputStream> list) {
+            SLog.d(SLog.TAG_RTC, "Remote user unpublish resource，user=" + rcrtcRemoteUser.getUserId() + "," + rtcCallback);
+            getUIHandler(new Runnable() {
+                @Override
+                public void run() {
+                    if (rtcCallback != null) {
+                        rtcCallback.onRemoteUserUnPublishResource(rcrtcRemoteUser.getUserId(), list);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onUserJoined(final RCRTCRemoteUser rcrtcRemoteUser) {
+            SLog.d(SLog.TAG_RTC, "User join room ，user=" + rcrtcRemoteUser.getUserId());
+            getUIHandler(new Runnable() {
+                @Override
+                public void run() {
+                    if (rtcCallback != null) {
+                        rtcCallback.onUserJoined(rcrtcRemoteUser.getUserId());
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onUserLeft(RCRTCRemoteUser rcrtcRemoteUser) {
+            SLog.d(SLog.TAG_RTC, "User left room ，user=" + rcrtcRemoteUser.getUserId());
             if (rtcCallback != null) {
-                rtcCallback.onRemoteUserPublishResource(rongRTCRemoteUser.getUserId(), list);
+                rtcCallback.onUserLeft(rcrtcRemoteUser.getUserId());
             }
         }
 
         @Override
-        public void onRemoteUserAudioStreamMute(RongRTCRemoteUser rongRTCRemoteUser, RongRTCAVInputStream rongRTCAVInputStream, boolean b) {
-            SLog.d(SLog.TAG_RTC, "Remote User AudioStream Mute，user=" + rongRTCRemoteUser.getUserId() + ", mute = " + b + "," + rtcCallback);
-            if (rtcCallback != null) {
-                rtcCallback.onRemoteUserAudioStreamMute(rongRTCRemoteUser.getUserId(), b);
-            }
+        public void onUserOffline(final RCRTCRemoteUser rcrtcRemoteUser) {
+            SLog.d(SLog.TAG_RTC, "User offline ，user=" + rcrtcRemoteUser.getUserId());
+            getUIHandler(new Runnable() {
+                @Override
+                public void run() {
+                    if (rtcCallback != null) {
+                        rtcCallback.onUserOffline(rcrtcRemoteUser.getUserId());
+                    }
+                }
+            });
         }
 
         @Override
-        public void onRemoteUserVideoStreamEnabled(RongRTCRemoteUser rongRTCRemoteUser, RongRTCAVInputStream rongRTCAVInputStream, boolean b) {
-            SLog.d(SLog.TAG_RTC, "Remote user video stream enable，user=" + rongRTCRemoteUser.getUserId() + ", Enabled = " + b + "," + rtcCallback);
-            if (rtcCallback != null) {
-                rtcCallback.onRemoteUserVideoStreamEnabled(rongRTCRemoteUser.getUserId(), b);
-            }
-        }
-
-        @Override
-        public void onRemoteUserUnpublishResource(RongRTCRemoteUser rongRTCRemoteUser, List<RongRTCAVInputStream> list) {
-            SLog.d(SLog.TAG_RTC, "Remote user unpublish resource，user=" + rongRTCRemoteUser.getUserId() + "," + rtcCallback);
-            if (rtcCallback != null) {
-                rtcCallback.onRemoteUserUnPublishResource(rongRTCRemoteUser.getUserId(), list);
-            }
-        }
-
-        @Override
-        public void onUserJoined(RongRTCRemoteUser rongRTCRemoteUser) {
-            SLog.d(SLog.TAG_RTC, "User join room ，user=" + rongRTCRemoteUser.getUserId());
-            if (rtcCallback != null) {
-                rtcCallback.onUserJoined(rongRTCRemoteUser.getUserId());
-            }
-        }
-
-        @Override
-        public void onUserLeft(RongRTCRemoteUser rongRTCRemoteUser) {
-            SLog.d(SLog.TAG_RTC, "User left room ，user=" + rongRTCRemoteUser.getUserId());
-            if (rtcCallback != null) {
-                rtcCallback.onUserLeft(rongRTCRemoteUser.getUserId());
-            }
-        }
-
-        @Override
-        public void onUserOffline(RongRTCRemoteUser rongRTCRemoteUser) {
-            SLog.d(SLog.TAG_RTC, "User offline ，user=" + rongRTCRemoteUser.getUserId());
-            if (rtcCallback != null) {
-                rtcCallback.onUserOffline(rongRTCRemoteUser.getUserId());
-            }
-        }
-
-        @Override
-        public void onVideoTrackAdd(String s, String s1) {
-            SLog.d(SLog.TAG_RTC, "Video Track Add  ，s = " + s + ", s1 = " + s1);
-        }
-
-        @Override
-        public void onFirstFrameDraw(String userId, String tag) {
-            SLog.d(SLog.TAG_RTC, "First frame draw  ，userId = " + userId + ", tag = " + tag);
-            if (rtcCallback != null) {
-                rtcCallback.onFirstFrameDraw(userId, tag);
-            }
-        }
-
-        @Override
-        public void onLeaveRoom() {
-            SLog.d(SLog.TAG_RTC, "Leave room");
-        }
-
-        @Override
-        public void onReceiveMessage(Message message) {
+        public void onLeaveRoom(int i) {
 
         }
 
         @Override
-        public void onKickedByServer() {
-
+        public void onFirstRemoteVideoFrame(final String s, final String s1) {
+            super.onFirstRemoteVideoFrame(s, s1);
+            SLog.d(SLog.TAG_RTC, "First frame draw  ，userId = " + s + ", tag = " + s1);
+            getUIHandler(new Runnable() {
+                @Override
+                public void run() {
+                    if (rtcCallback != null) {
+                        rtcCallback.onFirstFrameDraw(s, s1);
+                    }
+                }
+            });
         }
     };
 
     public void setVideoResolution(VideoResolution resolution) {
-        RongRTCConfig config = new RongRTCConfig.Builder().setVideoProfile(resolution.getProfile())
-                .enableTinyStream(true)
-                .build();
-        RongRTCCapture.getInstance().setRTCConfig(config);
+        RCRTCVideoStreamConfig videoConfigBuilder = RCRTCVideoStreamConfig.Builder.create()
+            //设置分辨率
+            .setVideoResolution(resolution.getProfile())
+            .build();
+        if (RCRTCEngine.getInstance().getDefaultVideoStream() != null) {
+            RCRTCEngine.getInstance().getDefaultVideoStream().setVideoConfig(videoConfigBuilder);
+            RCRTCEngine.getInstance().getDefaultVideoStream().enableTinyStream(true);
+        }
     }
 
     public interface RtcCallback {
 
-        void onInitialRemoteUserList(Map<String, List<RongRTCAVInputStream>> userInfos);
+        void onInitialRemoteUserList(Map<String, List<RCRTCInputStream>> userInfos);
 
-        void onRemoteUserPublishResource(String userIds, List<RongRTCAVInputStream> list);
+        void onRemoteUserPublishResource(String userIds, List<RCRTCInputStream> list);
 
-        void onRemoteUserUnPublishResource(String userId, List<RongRTCAVInputStream> list);
+        void onRemoteUserUnPublishResource(String userId, List<RCRTCInputStream> list);
 
         void onRemoteUserAudioStreamMute(String userId, boolean mute);
 

@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:background="@null"
+        android:textAllCaps="false"
         android:drawableTop="@drawable/selector_white_board_action_pencil"
         android:text="@string/white_board_pencil" />
 
@@ -21,6 +22,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:textAllCaps="false"
         android:background="@null"
         android:drawableTop="@drawable/selector_white_board_action_text"
         android:text="@string/white_board_text" />
@@ -31,6 +33,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:background="@null"
+        android:textAllCaps="false"
         android:drawableTop="@drawable/selector_white_board_action_eraser"
         android:text="@string/white_board_eraser" />
 
@@ -40,6 +43,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:background="@null"
+        android:textAllCaps="false"
         android:drawableTop="@drawable/selector_white_board_action_clear"
         android:text="@string/white_board_clear" />
 
@@ -49,6 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:background="@null"
+        android:textAllCaps="false"
         android:drawableTop="@drawable/selector_white_board_action_add"
         android:text="@string/white_board_add" />
 
@@ -58,6 +63,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:background="@null"
+        android:textAllCaps="false"
         android:drawableTop="@drawable/selector_white_board_action_delete"
         android:text="@string/white_board_delete" />
 </LinearLayout>

@@ -3,8 +3,6 @@ package cn.rongcloud.sealclass.viewmodel;
 import android.app.Application;
 import android.os.CountDownTimer;
 import android.text.TextUtils;
-import android.view.Display;
-
 import androidx.annotation.NonNull;
 import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
@@ -13,6 +11,8 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import cn.rongcloud.rtc.api.stream.RCRTCVideoView;
+import cn.rongcloud.sealclass.common.ResultUICallback;
 import io.rong.imlib.RongIMClient.ConnectionStatusListener.ConnectionStatus;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import cn.rongcloud.rtc.engine.view.RongRTCVideoView;
 import cn.rongcloud.sealclass.common.ResultCallback;
 import cn.rongcloud.sealclass.common.StateLiveData;
 import cn.rongcloud.sealclass.im.IMManager;
@@ -477,11 +475,13 @@ public class ClassViewModel extends ViewModel {
             @Override
             public void onSuccess(Boolean result) {
                 stateLiveData.success();
+                RtcManager.getInstance().unInit();
             }
 
             @Override
             public void onFail(int errorCode) {
                 stateLiveData.failed(errorCode);
+                RtcManager.getInstance().unInit();
             }
         });
 
@@ -1612,14 +1612,14 @@ public class ClassViewModel extends ViewModel {
     public LiveData<RequestState> joinRtcRoom(String roomId) {
         final StateLiveData stateLiveData = new StateLiveData();
         stateLiveData.loading();
-        RtcManager.getInstance().joinRtcRoom(roomId, new ResultCallback<String>() {
+        RtcManager.getInstance().joinRtcRoom(roomId, new ResultUICallback<String>() {
             @Override
-            public void onSuccess(String roomId) {
+            public void onUISuccess(String roomId) {
                 stateLiveData.success();
             }
 
             @Override
-            public void onFail(int errorCode) {
+            public void onUIFail(int errorCode) {
                 stateLiveData.failed(errorCode);
             }
         });
@@ -1629,14 +1629,14 @@ public class ClassViewModel extends ViewModel {
     public LiveData<RequestState> quitRtcRoom(String roomId) {
         final StateLiveData stateLiveData = new StateLiveData();
         stateLiveData.loading();
-        classRepository.quitRtcRoom(roomId, new ResultCallback<String>() {
+        classRepository.quitRtcRoom(roomId, new ResultUICallback<String>() {
             @Override
-            public void onSuccess(String roomId) {
+            public void onUISuccess(String roomId) {
                 stateLiveData.success();
             }
 
             @Override
-            public void onFail(int errorCode) {
+            public void onUIFail(int errorCode) {
                 stateLiveData.failed(errorCode);
             }
         });
@@ -1644,18 +1644,18 @@ public class ClassViewModel extends ViewModel {
 
     }
 
-    public LiveData<RequestState> startRtcChat(RongRTCVideoView view) {
+    public LiveData<RequestState> startRtcChat(RCRTCVideoView view) {
         final StateLiveData stateLiveData = new StateLiveData();
         stateLiveData.loading();
-        classRepository.startRtcChat(view, new ResultCallback<Boolean>() {
+        classRepository.startRtcChat(view, new ResultUICallback<Boolean>() {
             @Override
-            public void onSuccess(Boolean aBoolean) {
+            public void onUISuccess(Boolean aBoolean) {
                 stateLiveData.success();
                 localUserStartVideoChat.postValue(true);
             }
 
             @Override
-            public void onFail(int errorCode) {
+            public void onUIFail(int errorCode) {
                 stateLiveData.failed(errorCode);
             }
         });
@@ -1665,17 +1665,17 @@ public class ClassViewModel extends ViewModel {
     public LiveData<RequestState> stopRtcChat() {
         final StateLiveData stateLiveData = new StateLiveData();
         stateLiveData.loading();
-        classRepository.stopRtcChat(new ResultCallback<Boolean>() {
+        classRepository.stopRtcChat(new ResultUICallback<Boolean>() {
 
             @Override
-            public void onSuccess(Boolean aBoolean) {
+            public void onUISuccess(Boolean aBoolean) {
                 stateLiveData.success();
                 localUserStartVideoChat.postValue(false);
 
             }
 
             @Override
-            public void onFail(int errorCode) {
+            public void onUIFail(int errorCode) {
                 stateLiveData.failed(errorCode);
             }
         });
@@ -1699,12 +1699,13 @@ public class ClassViewModel extends ViewModel {
     public boolean isMuteVideo(){
         return RtcManager.getInstance().isMuteVideo();
     }
-    public boolean isInRoom(){
-        return RtcManager.getInstance().isInRoom();
-    }
 
     public void startCapture(){
         RtcManager.getInstance().startCapture();
+    }
+
+    public void stopCapture(){
+        RtcManager.getInstance().stopCapture();
     }
 
     public void switchCamera() {
@@ -1733,14 +1734,14 @@ public class ClassViewModel extends ViewModel {
     public LiveData<RequestState> muteRoomVoice(boolean mute) {
         final StateLiveData stateLiveData = new StateLiveData();
         stateLiveData.loading();
-        classRepository.muteRoomVoice(mute, new ResultCallback<Boolean>() {
+        classRepository.muteRoomVoice(mute, new ResultUICallback<Boolean>() {
             @Override
-            public void onSuccess(Boolean bmete) {
+            public void onUISuccess(Boolean bmete) {
                 stateLiveData.success();
             }
 
             @Override
-            public void onFail(int errorCode) {
+            public void onUIFail(int errorCode) {
                 stateLiveData.failed(errorCode);
             }
         });
@@ -1748,36 +1749,36 @@ public class ClassViewModel extends ViewModel {
     }
 
 
-    public LiveData<RequestState> subscribeAllResource(HashMap<String, RongRTCVideoView> videoViews) {
+    public LiveData<RequestState> subscribeAllResource(HashMap<String, RCRTCVideoView> videoViews) {
         final StateLiveData stateLiveData = new StateLiveData();
         stateLiveData.loading();
-        classRepository.subscribeAllResource(videoViews, new ResultCallback<Boolean>() {
+        classRepository.subscribeAllResource(videoViews, new ResultUICallback<Boolean>() {
             @Override
-            public void onSuccess(Boolean b) {
+            public void onUISuccess(Boolean b) {
                 stateLiveData.success();
 
             }
 
             @Override
-            public void onFail(int errorCode) {
+            public void onUIFail(int errorCode) {
                 stateLiveData.failed(errorCode);
             }
         });
         return stateLiveData;
     }
 
-    public LiveData<RequestState> subscribeResource(String userId, RongRTCVideoView videoView) {
+    public LiveData<RequestState> subscribeResource(String userId, RCRTCVideoView videoView) {
         final StateLiveData stateLiveData = new StateLiveData();
         stateLiveData.loading();
-        classRepository.subscribeResource(userId, videoView, getMembership(userId),new ResultCallback<String>() {
+        classRepository.subscribeResource(userId, videoView, getMembership(userId),new ResultUICallback<String>() {
             @Override
-            public void onSuccess(String b) {
+            public void onUISuccess(String b) {
                 stateLiveData.success();
 
             }
 
             @Override
-            public void onFail(int errorCode) {
+            public void onUIFail(int errorCode) {
                 stateLiveData.failed(errorCode);
 
             }
@@ -1802,18 +1803,18 @@ public class ClassViewModel extends ViewModel {
         return role;
     }
 
-    public LiveData<RequestState> subscribeResource(String userId, RongRTCVideoView videoView, RongRTCVideoView screenShareVideo) {
+    public LiveData<RequestState> subscribeResource(String userId, RCRTCVideoView videoView, RCRTCVideoView screenShareVideo) {
         final StateLiveData stateLiveData = new StateLiveData();
         stateLiveData.loading();
-        classRepository.subscribeResource(userId, videoView, screenShareVideo, getMembership(userId),new ResultCallback<String>() {
+        classRepository.subscribeResource(userId, videoView, screenShareVideo, getMembership(userId),new ResultUICallback<String>() {
             @Override
-            public void onSuccess(String b) {
+            public void onUISuccess(String b) {
                 stateLiveData.success();
 
             }
 
             @Override
-            public void onFail(int errorCode) {
+            public void onUIFail(int errorCode) {
                 stateLiveData.failed(errorCode);
 
             }
@@ -1825,15 +1826,15 @@ public class ClassViewModel extends ViewModel {
     public LiveData<RequestState>  unSubscribeResource(String userId) {
         final MutableLiveData<RequestState> stateLiveData = new MutableLiveData<>();
         stateLiveData.postValue(RequestState.loading());
-        classRepository.unSubscribeResource(userId, new ResultCallback<String>() {
+        classRepository.unSubscribeResource(userId, new ResultUICallback<String>() {
             @Override
-            public void onSuccess(String b) {
+            public void onUISuccess(String b) {
                 stateLiveData.setValue(RequestState.success());
 
             }
 
             @Override
-            public void onFail(int errorCode) {
+            public void onUIFail(int errorCode) {
                 stateLiveData.setValue(RequestState.failed(errorCode));
 
             }
@@ -1842,18 +1843,18 @@ public class ClassViewModel extends ViewModel {
     }
 
 
-    public LiveData<RequestState>  subscribeVideo(String userId, RongRTCVideoView videoView) {
+    public LiveData<RequestState>  subscribeVideo(String userId, RCRTCVideoView videoView) {
         final MutableLiveData<RequestState> stateLiveData = new MutableLiveData<>();
         stateLiveData.postValue(RequestState.loading());
-        classRepository.subscribeVideo(userId, videoView, new ResultCallback<String>() {
+        classRepository.subscribeVideo(userId, videoView, new ResultUICallback<String>() {
             @Override
-            public void onSuccess(String b) {
+            public void onUISuccess(String b) {
                 stateLiveData.setValue(RequestState.success());
 
             }
 
             @Override
-            public void onFail(int errorCode) {
+            public void onUIFail(int errorCode) {
                 stateLiveData.setValue(RequestState.failed(errorCode));
 
             }
@@ -1864,15 +1865,15 @@ public class ClassViewModel extends ViewModel {
     public LiveData<RequestState>  unSubscribeVideo(String userId) {
         final MutableLiveData<RequestState> stateLiveData = new MutableLiveData<>();
         stateLiveData.postValue(RequestState.loading());
-        classRepository.unSubscribeVideo(userId, new ResultCallback<String>() {
+        classRepository.unSubscribeVideo(userId, new ResultUICallback<String>() {
             @Override
-            public void onSuccess(String b) {
+            public void onUISuccess(String b) {
                 stateLiveData.setValue(RequestState.success());
 
             }
 
             @Override
-            public void onFail(int errorCode) {
+            public void onUIFail(int errorCode) {
                 stateLiveData.setValue(RequestState.failed(errorCode));
 
             }
@@ -1883,15 +1884,15 @@ public class ClassViewModel extends ViewModel {
     public LiveData<RequestState>  subscribeAudio(String userId) {
         final MutableLiveData<RequestState> stateLiveData = new MutableLiveData<>();
         stateLiveData.postValue(RequestState.loading());
-        classRepository.subscribeAudio(userId, new ResultCallback<String>() {
+        classRepository.subscribeAudio(userId, new ResultUICallback<String>() {
             @Override
-            public void onSuccess(String b) {
+            public void onUISuccess(String b) {
                 stateLiveData.setValue(RequestState.success());
 
             }
 
             @Override
-            public void onFail(int errorCode) {
+            public void onUIFail(int errorCode) {
                 stateLiveData.setValue(RequestState.failed(errorCode));
 
             }
@@ -1902,14 +1903,14 @@ public class ClassViewModel extends ViewModel {
     public LiveData<RequestState>  unSubscribeAudio(String userId) {
         final MutableLiveData<RequestState> stateLiveData = new MutableLiveData<>();
         stateLiveData.postValue(RequestState.loading());
-        classRepository.unSubscribeAudio(userId, new ResultCallback<String>() {
+        classRepository.unSubscribeAudio(userId, new ResultUICallback<String>() {
             @Override
-            public void onSuccess(String b) {
+            public void onUISuccess(String b) {
                 stateLiveData.setValue(RequestState.success());
             }
 
             @Override
-            public void onFail(int errorCode) {
+            public void onUIFail(int errorCode) {
                 stateLiveData.setValue(RequestState.failed(errorCode));
 
             }
@@ -1918,17 +1919,17 @@ public class ClassViewModel extends ViewModel {
     }
 
 
-    public LiveData<RequestState>  subscribeScreen(String userId, RongRTCVideoView videoView) {
+    public LiveData<RequestState>  subscribeScreen(String userId, RCRTCVideoView videoView) {
         final MutableLiveData<RequestState> stateLiveData = new MutableLiveData<>();
         stateLiveData.postValue(RequestState.loading());
-        classRepository.subscribeScreen(userId, videoView, new ResultCallback<String>() {
+        classRepository.subscribeScreen(userId, videoView, new ResultUICallback<String>() {
             @Override
-            public void onSuccess(String s) {
+            public void onUISuccess(String s) {
                 stateLiveData.setValue(RequestState.success());
             }
 
             @Override
-            public void onFail(int errorCode) {
+            public void onUIFail(int errorCode) {
                 stateLiveData.setValue(RequestState.failed(errorCode));
             }
         });
@@ -1938,14 +1939,14 @@ public class ClassViewModel extends ViewModel {
     public LiveData<RequestState>  unSubscribeScreen(String userId) {
         final MutableLiveData<RequestState> stateLiveData = new MutableLiveData<>();
         stateLiveData.postValue(RequestState.loading());
-        classRepository.unSubscribeScreen(userId, new ResultCallback<String>() {
+        classRepository.unSubscribeScreen(userId, new ResultUICallback<String>() {
             @Override
-            public void onSuccess(String s) {
+            public void onUISuccess(String s) {
                 stateLiveData.setValue(RequestState.success());
             }
 
             @Override
-            public void onFail(int errorCode) {
+            public void onUIFail(int errorCode) {
                 stateLiveData.setValue(RequestState.failed(errorCode));
             }
         });
