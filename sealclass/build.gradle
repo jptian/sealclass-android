@@ -39,7 +39,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
     implementation 'com.github.duty-os:white-sdk-android:2.7.7'
     //
-    implementation 'cn.rongcloud.sdk:im_lib:4.0.3.1' // 即时通讯基础能力库
-    implementation 'cn.rongcloud.sdk:im_kit:4.0.3.1' // 即时通讯 UI 基础组件
-    implementation 'cn.rongcloud.sdk:rtc_lib:4.0.3.3'  // 音视频基础能力库
+    implementation 'cn.rongcloud.sdk:im_lib:4.1.0' // 即时通讯基础能力库
+    implementation 'cn.rongcloud.sdk:im_kit:4.1.0' // 即时通讯 UI 基础组件
+    implementation 'cn.rongcloud.sdk:rtc_lib:4.1.0'  // 音视频基础能力库
 }
